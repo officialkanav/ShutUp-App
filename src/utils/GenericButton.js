@@ -11,7 +11,7 @@ export default class GenericButton extends React.PureComponent {
   }
   render() {
     const {style, text, onPress} = this.props;
-    const fontSize = this.props.fontSize || 10;
+    const fontSize = this.props.fontSize || 12;
     return (
       <TouchableOpacity
         style={{...styles.container, ...style}}
@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.8,
     shadowRadius: 5,
-  }
+  },
 });
 
 GenericButton.propTypes = {

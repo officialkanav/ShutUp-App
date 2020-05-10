@@ -108,5 +108,5 @@ const styles = StyleSheet.create({
 });
 
 Login.propTypes = {
-  type: PropTypes.string.isRequired,
+  type: PropTypes.string,
 };

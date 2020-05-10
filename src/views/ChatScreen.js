@@ -1,22 +1,29 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {View, StyleSheet, Dimensions, FlatList, TextInput} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  FlatList,
+  TextInput,
+  KeyboardAvoidingView,
+} from 'react-native';
 import colors from '../utils/colors';
 import GenericText from '../utils/GenericText';
 import CircleLogo from '../views/CircleLogo';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const chatArray = [
-  {text: 'egrjbwjfskjbjkbdvsdvsdvsdsvsbgwe', sender: 'me'},
-  {text: 'sdvsdvs', sender: 'friend'},
-  {text: 'dfbdfbdfbsdfb', sender: 'me'},
-  {text: 'sdvsdvs', sender: 'friend'},
-  {text: 'fsbdfdf', sender: 'me'},
-  {text: 'sdvsdvs', sender: 'friend'},
-  {text: 'gfgnfgnfrg', sender: 'me'},
-  {text: 'sdvsdvs', sender: 'friend'},
-  {text: 'egrjbwjfsdvsdvsdvsdsvsbgwe', sender: 'me'},
-  {text: 'sdvsdvs', sender: 'friend'},
+let chatArray = [
+  {text: 'egrjbwjfskjbjkbdvsdvsdvsdsvsbgwe 1', sender: 'me'},
+  {text: 'sdvsdvs 2', sender: 'friend'},
+  {text: 'dfbdfbdfbsdfb 3', sender: 'me'},
+  {text: 'sdvsdvs 4', sender: 'friend'},
+  {text: 'fsbdfdf 5', sender: 'me'},
+  {text: 'sdvsdvs 6', sender: 'friend'},
+  {text: 'gfgnfgnfrg 7', sender: 'me'},
+  {text: 'sdvsdvs 8', sender: 'friend'},
+  {text: 'egrjbwjfsdvsdvsdvsdsvsbgwe 9', sender: 'me'},
+  {text: 'sdvsdvs 10', sender: 'friend'},
   {text: 'fdsfvsfv', sender: 'me'},
   {text: 'sdvsdvs', sender: 'friend'},
   {text: 'mkfbjfosdvh dsufhsdu gwueg iuwiuv ewiufw', sender: 'me'},
@@ -95,7 +102,7 @@ export default class ChatScreen extends React.PureComponent {
         style={[
           styles.chatContainer,
           {backgroundColor: color},
-          byMe && {marginLeft: 0.33 * SCREEN_WIDTH},
+          byMe && {marginLeft: 0.36 * SCREEN_WIDTH},
         ]}>
         <GenericText
           text={chat.text}
@@ -108,8 +115,17 @@ export default class ChatScreen extends React.PureComponent {
   };
 
   renderTextInput = () => {
+    const newChat = this.state.newChat;
     return (
-      <View style={{flexDirection: 'row', flex: 0.1, margin: 5}}>
+      <KeyboardAvoidingView
+        behavior="height"
+        style={{
+          flexDirection: 'row',
+          flex: 0.1,
+          margin: 5,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
         <TextInput
           style={{
             ...styles.textInput,
@@ -124,25 +140,29 @@ export default class ChatScreen extends React.PureComponent {
           <CircleLogo
             radius={40}
             noAnimation={true}
-            onPress={() => {}}
+            onPress={() => {
+              newChat !== '' &&
+                chatArray.unshift({text: newChat, sender: 'Me'});
+              this.setState({newChat: ''});
+            }}
             textSize={7}
           />
         </View>
-      </View>
+      </KeyboardAvoidingView>
     );
   };
 
   renderFlatList = () => {
+    // const data = chatArray.reverse()
     return (
       <FlatList
+        extraData={chatArray}
+        inverted
         keyExtractor={(item, index) => index.toString()}
         data={chatArray}
         renderItem={({item}) => {
           return this.renderChats(item);
         }}
-        // ListFooterComponent={this.renderTextInput}
-        // contentContainerStyle={{flexGrow: 1}}
-        // ListFooterComponentStyle={{flex: 1, justifyContent: 'flex-end'}}
         style={{flex: 0.9, marginTop: 3}}
       />
     );
@@ -189,5 +209,3 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
 });
-
-ChatScreen.propTypes = {};

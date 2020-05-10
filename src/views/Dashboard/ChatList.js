@@ -1,15 +1,9 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {
-  View,
-  StyleSheet,
-  Dimensions,
-  FlatList,
-  TouchableOpacity,
-} from 'react-native';
+import {View, StyleSheet, Dimensions, FlatList} from 'react-native';
 // import PropTypes from 'prop-types';
 import colors from '../../utils/colors';
-import GenericText from '../../utils/GenericText';
+import ChatListComponent from './ChatListComponent';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const DATA = [
@@ -48,36 +42,11 @@ export default class ChatList extends React.PureComponent {
 
   renderChatCard = (username, name) => {
     return (
-      <TouchableOpacity
-        style={styles.chatCardContainer}
-        onPress={() => {
-          this.cardOnPress(username, name);
-        }}>
-        <View
-          style={{
-            height: 55,
-            width: 55,
-            borderRadius: 55,
-            marginLeft: 5,
-            backgroundColor: colors.darkGray,
-          }}
-        />
-        {/* image above */}
-        <View>
-          <GenericText
-            text={name}
-            color={colors.darkGray}
-            size={30}
-            style={{marginLeft: 10}}
-          />
-          <GenericText
-            text={`@${username}`}
-            color={colors.darkGray}
-            size={10}
-            style={{marginLeft: 10}}
-          />
-        </View>
-      </TouchableOpacity>
+      <ChatListComponent
+        username={username}
+        name={name}
+        onPress={this.cardOnPress}
+      />
     );
   };
 

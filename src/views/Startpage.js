@@ -14,7 +14,7 @@ export default class Startpage extends React.PureComponent {
 
   renderLogo = () => {
     return (
-      <View style={{marginTop: 100}}>
+      <View style={{marginTop: 100, height: 250}}>
         <CircleLogo textSize={50} radius={250} />
       </View>
     );

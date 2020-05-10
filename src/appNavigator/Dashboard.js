@@ -4,21 +4,10 @@ import {View} from 'react-native';
 import colors from '../utils/colors';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import ChatList from '../views/Dashboard/ChatList';
+import SendReq from '../views/Dashboard/SendReq';
+import ViewReq from '../views/Dashboard/ViewReq';
 
 const Tab = createBottomTabNavigator();
-
-function HomeScreen() {
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'lightgreen',
-      }}
-    />
-  );
-}
 
 export default class Dashboard extends React.PureComponent {
   constructor(props) {
@@ -38,7 +27,8 @@ export default class Dashboard extends React.PureComponent {
           inactiveTintColor: colors.darkGray,
         }}>
         <Tab.Screen name="Chat" component={ChatList} />
-        <Tab.Screen name="Search" component={HomeScreen} />
+        <Tab.Screen name="Add Friend" component={SendReq} />
+        <Tab.Screen name="Requests" component={ViewReq} />
       </Tab.Navigator>
     );
   }
