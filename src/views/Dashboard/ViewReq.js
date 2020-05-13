@@ -27,6 +27,7 @@ export default class ViewReq extends React.PureComponent {
         name={item.name}
         username={item.username}
         onPress={() => {}}
+        showRequestButtons={true}
       />
     );
   };

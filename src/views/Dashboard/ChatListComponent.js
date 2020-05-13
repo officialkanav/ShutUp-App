@@ -13,11 +13,38 @@ export default class ChatListComponent extends React.PureComponent {
     super(props);
   }
 
+  reqButtonHelper = (text, onPress) => {
+    return (
+      <TouchableOpacity onPress={onPress}>
+        <GenericText text={text} size={35} color={colors.darkGray} />
+      </TouchableOpacity>
+    );
+  };
+
+  renderRequestButtons = () => {
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          position: 'absolute',
+          right: 20,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        {this.reqButtonHelper('+', () => {})}
+        <View style={{marginLeft: 15}}>
+          {this.reqButtonHelper('-', () => {})}
+        </View>
+      </View>
+    );
+  };
+
   renderChatCard = (username, name) => {
-    const {onPress} = this.props;
+    const {onPress, showRequestButtons} = this.props;
     return (
       <TouchableOpacity
         style={styles.chatCardContainer}
+        disabled={showRequestButtons}
         onPress={() => {
           onPress(username, name);
         }}>
@@ -45,6 +72,7 @@ export default class ChatListComponent extends React.PureComponent {
             style={{marginLeft: 10}}
           />
         </View>
+        {showRequestButtons && this.renderRequestButtons()}
       </TouchableOpacity>
     );
   };
@@ -72,4 +100,9 @@ ChatListComponent.propTypes = {
   onPress: PropType.func.isRequired,
   username: PropType.string.isRequired,
   name: PropType.string.isRequired,
+  showRequestButtons: PropType.bool,
+};
+
+ChatListComponent.defaultProps = {
+  showRequestButtons: false,
 };
