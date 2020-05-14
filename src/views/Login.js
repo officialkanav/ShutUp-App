@@ -5,20 +5,51 @@ import PropTypes from 'prop-types';
 import colors from '../utils/colors';
 import GenericText from '../utils/GenericText';
 import CircleLogo from './CircleLogo';
+import {connect} from 'react-redux';
+import {loginAsync, SignUpAsync} from '../actions/loginAction';
+import Toast from 'react-native-simple-toast';
 
 const TextInputWidth = Dimensions.get('window').width - 40;
 
-export default class Login extends React.PureComponent {
+class Login extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       usernameText: '',
       passwordText: '',
+      nameText: '',
     };
   }
 
-  submitOnPress = () => {
-    this.props.navigation.navigate('DashboardScreen');
+  componentDidUpdate(prevProps) {
+    if (this.props.username !== null) {
+      Toast.show('Logging in ' + this.props.username, Toast.SHORT);
+      this.props.navigation.navigate('DashboardScreen');
+    }
+  }
+
+  logoOnPress = () => {
+    const {type} = this.props.route.params;
+    const {sendLoginReq, sendSignUpReq} = this.props;
+    if (this.state.usernameText === '') {
+      return Toast.show('Username cannot be empty', Toast.SHORT);
+    } else if (this.state.passwordText === '') {
+      return Toast.show('Password cannot be empty', Toast.SHORT);
+    } else if (this.state.passwordText.length < 7) {
+      return Toast.show('Password length < 7', Toast.SHORT);
+    }
+    this.buttonPressed = true;
+    const username = this.state.usernameText;
+    const password = this.state.passwordText;
+    if (type === 'Login') {
+      sendLoginReq(username, password);
+    } else {
+      const name = this.state.nameText;
+      if (name === '') {
+        return Toast.show('Name cannot be empty', Toast.SHORT);
+      }
+      sendSignUpReq(name, username, password);
+    }
   };
 
   renderLogo = () => {
@@ -28,7 +59,8 @@ export default class Login extends React.PureComponent {
         <CircleLogo
           textSize={30}
           radius={150}
-          onPress={this.submitOnPress}
+          noAnimation={true}
+          onPress={this.logoOnPress}
           text={type}
         />
       </View>
@@ -46,12 +78,30 @@ export default class Login extends React.PureComponent {
     );
   };
 
-  renderUsernameTextField = () => {
+  renderNameTextField = () => {
     return (
       <TextInput
         style={{
           ...styles.textInput,
           marginTop: 100,
+        }}
+        onChangeText={value => {
+          this.setState({nameText: value});
+        }}
+        value={this.state.nameText}
+        placeholder={'Name'}
+      />
+    );
+  };
+
+  renderUsernameTextField = () => {
+    const {type} = this.props.route.params;
+    const marginTop = type === 'Login' ? 100 : 30;
+    return (
+      <TextInput
+        style={{
+          ...styles.textInput,
+          marginTop,
         }}
         onChangeText={value => {
           this.setState({usernameText: value});
@@ -80,9 +130,11 @@ export default class Login extends React.PureComponent {
   };
 
   render() {
+    const {type} = this.props.route.params;
     return (
       <View style={styles.container}>
         {this.renderWelcomeText()}
+        {type === 'SignUp' && this.renderNameTextField()}
         {this.renderUsernameTextField()}
         {this.renderPasswordTextField()}
         {this.renderLogo()}
@@ -109,4 +161,30 @@ const styles = StyleSheet.create({
 
 Login.propTypes = {
   type: PropTypes.string,
+  sendLoginReq: PropTypes.func.isRequired,
+  username: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  token: PropTypes.string.isRequired,
 };
+
+const mapStateToProps = state => {
+  return {
+    ...state.Login,
+  };
+};
+
+function mapDispatchToProps(dispatch) {
+  return {
+    sendLoginReq: (username, password) => {
+      return dispatch(loginAsync(username, password));
+    },
+    sendSignUpReq: (name, username, password) => {
+      return dispatch(SignUpAsync(name, username, password));
+    },
+  };
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Login);
