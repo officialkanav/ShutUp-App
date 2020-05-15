@@ -6,6 +6,7 @@ import StartPage from '../views/Startpage';
 import Login from '../views/Login';
 import Dashboard from './Dashboard';
 import ChatScreen from '../views/ChatScreen';
+import Splash from '../views/Splash';
 
 const Stack = createStackNavigator();
 
@@ -16,6 +17,13 @@ export default class AppNavigator extends React.PureComponent {
         <Stack.Navigator>
           <Stack.Screen
             name="Home"
+            component={Splash}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="StartScreen"
             component={StartPage}
             options={{
               headerShown: false,

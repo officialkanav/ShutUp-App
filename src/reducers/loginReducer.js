@@ -20,10 +20,6 @@ const loginUser = (state, payLoad) => {
   return newState;
 };
 
-const checkIfLoggedIn = (state, payLoad) => {
-  return null;
-};
-
 const logoutUser = () => {
   return {
     username: null,
@@ -40,8 +36,6 @@ export default function loginReducer(state = initialSettings, action) {
   switch (action.type) {
     case 'LOGIN_USER':
       return loginUser(state, action.payLoad);
-    case 'CHECK_IF_LOGGED_IN':
-      return checkIfLoggedIn(state, action.payLoad);
     case 'LOGOUT_USER':
       return logoutUser();
     case 'ATTEMPTING_LOGIN':
