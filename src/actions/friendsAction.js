@@ -52,10 +52,10 @@ export function getReqRecieved(token) {
       method: 'GET',
       headers: {
         // eslint-disable-next-line prettier/prettier
-          'Accept': 'application/json',
+        'Accept': 'application/json',
         'Content-Type': 'application/json',
         // eslint-disable-next-line prettier/prettier
-          'Authorization': auth,
+        'Authorization': auth,
       },
     })
       .then(response => response.json())
@@ -83,10 +83,10 @@ export function acceptReq(token, username) {
       method: 'POST',
       headers: {
         // eslint-disable-next-line prettier/prettier
-            'Accept': 'application/json',
+        'Accept': 'application/json',
         'Content-Type': 'application/json',
         // eslint-disable-next-line prettier/prettier
-            'Authorization': auth,
+        'Authorization': auth,
       },
       body: JSON.stringify({
         username,
@@ -118,10 +118,10 @@ export function rejectReq(token, username) {
       method: 'POST',
       headers: {
         // eslint-disable-next-line prettier/prettier
-              'Accept': 'application/json',
+        'Accept': 'application/json',
         'Content-Type': 'application/json',
         // eslint-disable-next-line prettier/prettier
-              'Authorization': auth,
+        'Authorization': auth,
       },
       body: JSON.stringify({
         username,
@@ -143,4 +143,76 @@ export function rejectReq(token, username) {
         return dispatch({type: 'SEARCH_COMPLETE'});
       });
   };
+}
+
+export function sendReq(token, username) {
+  const auth = 'Bearer '.concat(token);
+  return function(dispatch) {
+    dispatch({type: 'ATTEMPTING_SEARCH'});
+    return fetch(constants.server.concat('/sendRequest'), {
+      method: 'POST',
+      headers: {
+        // eslint-disable-next-line prettier/prettier
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        // eslint-disable-next-line prettier/prettier
+        'Authorization': auth,
+      },
+      body: JSON.stringify({
+        username,
+      }),
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (json.err) {
+          throw new Error(json.err);
+        }
+        Toast.show('Request sent', Toast.SHORT);
+        return dispatch({type: 'SEARCH_COMPLETE'});
+      })
+      .catch(err => {
+        Toast.show(JSON.stringify(err.message), Toast.SHORT);
+        if (err.message === 'Please authenticate properly') {
+          return dispatch(logout());
+        }
+        return dispatch({type: 'SEARCH_COMPLETE'});
+      });
+  };
+}
+
+export function searchUser(token, username, callback) {
+  const auth = 'Bearer '.concat(token);
+  return function(dispatch) {
+    return fetch(constants.server.concat('/users/searchUser'), {
+      method: 'POST',
+      headers: {
+        // eslint-disable-next-line prettier/prettier
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        // eslint-disable-next-line prettier/prettier
+        'Authorization': auth,
+      },
+      body: JSON.stringify({
+        username,
+      }),
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (json.err) {
+          throw new Error(json.err);
+        }
+        callback(false, json);
+      })
+      .catch(err => {
+        Toast.show(JSON.stringify(err.message), Toast.SHORT);
+        if (err.message === 'Please authenticate properly') {
+          return dispatch(logout());
+        }
+        callback(true, null);
+      });
+  };
+}
+
+export function refresh() {
+  return {type: 'REFRESH'};
 }

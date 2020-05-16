@@ -1,12 +1,19 @@
 /* eslint-disable react/no-did-update-set-state */
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {View, StyleSheet, Dimensions, FlatList} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  FlatList,
+  TouchableOpacity,
+} from 'react-native';
 // import PropTypes from 'prop-types';
 import colors from '../../utils/colors';
 import ChatListComponent from './ChatListComponent';
 import GenericText from '../../utils/GenericText';
-import {getFriends} from '../../actions/friendsAction';
+import {getFriends, refresh, logout} from '../../actions/friendsAction';
+
 import {connect} from 'react-redux';
 import Spinner from 'react-native-spinkit';
 
@@ -40,6 +47,9 @@ class ChatList extends React.PureComponent {
       token,
     } = this.props;
     if (prevProps !== this.props) {
+      if (prevProps.friends !== null && friends === null) {
+        return navigate('StartScreen');
+      }
       if (attemptingSearch) {
         this.setState({showLoader: true});
       } else if (!attemptingSearch && this.state.showLoader) {
@@ -65,6 +75,31 @@ class ChatList extends React.PureComponent {
         type={'ThreeBounce'}
         color={colors.lightGray}
       />
+    );
+  };
+
+  renderLogoutButton = () => {
+    const {logoutUser} = this.props;
+    return (
+      <TouchableOpacity onPress={logoutUser}>
+        <GenericText text={'Logout'} size={15} />
+      </TouchableOpacity>
+    );
+  };
+
+  renderHeader = () => {
+    return (
+      <View
+        style={{
+          width: '100%',
+          height: 50,
+          justifyContent: 'center',
+          backgroundColor: colors.lightGray,
+        }}>
+        <View style={{flexDirection: 'row', marginTop: 5, alignSelf: 'center'}}>
+          {this.renderLogoutButton()}
+        </View>
+      </View>
     );
   };
 
@@ -119,6 +154,7 @@ class ChatList extends React.PureComponent {
 
     return (
       <View style={styles.container}>
+        {this.renderHeader()}
         {!showLoader && this.friends.length === 0
           ? this.renderUserNotFound()
           : this.renderList()}
@@ -158,6 +194,8 @@ const mapStateToProps = state => {
 function mapDispatchToProps(dispatch) {
   return {
     getFriendsList: token => dispatch(getFriends(token)),
+    logoutUser: () => dispatch(logout()),
+    refreshApp: () => dispatch(refresh()),
   };
 }
 

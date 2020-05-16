@@ -8,27 +8,51 @@ import {
   KeyboardAvoidingView,
   Keyboard,
 } from 'react-native';
-import PropTypes from 'prop-types';
 import colors from '../../utils/colors';
 import GenericText from '../../utils/GenericText';
 import CircleLogo from '../CircleLogo';
-import ChatListComponent from '../Dashboard/ChatListComponent';
 import GenericButton from '../../utils/GenericButton';
+import {sendReq, searchUser} from '../../actions/friendsAction';
+import {connect} from 'react-redux';
+import Spinner from 'react-native-spinkit';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-export default class SendReq extends React.PureComponent {
+class SendReq extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       username: '',
-      matchFound: null,
+      showLoader: false,
     };
-    this.searchedName = null;
+    this.searchedObject = null;
   }
 
+  renderLoader = () => {
+    return (
+      <Spinner
+        isVisible={true}
+        size={70}
+        type={'ThreeBounce'}
+        color={colors.lightGray}
+      />
+    );
+  };
+
+  searchUsernameCallback = (err, json) => {
+    if (err) {
+      this.searchedObject = false;
+    } else {
+      this.searchedObject = json;
+    }
+    this.setState({showLoader: false});
+  };
+
   searchUsername = () => {
-    this.setState({matchFound: true});
+    const {searchUsername, token} = this.props;
+    const username = this.state.username;
+    this.setState({showLoader: true});
+    searchUsername(token, username, this.searchUsernameCallback);
   };
 
   renderTextInput = () => {
@@ -46,7 +70,8 @@ export default class SendReq extends React.PureComponent {
             ...styles.textInput,
           }}
           onChangeText={value => {
-            this.setState({username: value, matchFound: null});
+            this.setState({username: value});
+            this.searchedObject = null;
           }}
           value={this.state.username}
           placeholder={'Enter username'}
@@ -56,7 +81,6 @@ export default class SendReq extends React.PureComponent {
             radius={40}
             noAnimation={true}
             onPress={() => {
-              this.searchedName = this.state.username;
               this.searchUsername();
               Keyboard.dismiss();
             }}
@@ -66,6 +90,11 @@ export default class SendReq extends React.PureComponent {
         </View>
       </KeyboardAvoidingView>
     );
+  };
+
+  sendReqOnPress = () => {
+    const {token, sendRequest} = this.props;
+    sendRequest(token, this.searchedObject.username);
   };
 
   renderUser = () => {
@@ -85,19 +114,20 @@ export default class SendReq extends React.PureComponent {
             width: 80,
             borderRadius: 80,
             marginTop: 5,
-            backgroundColor: colors.lightGreen,
+            backgroundColor: colors.lightOrange,
           }}
         />
         <GenericText
-          text={'Kanav'}
+          text={this.searchedObject.username}
           color={colors.lightGray}
           size={50}
           style={{marginLeft: 10}}
         />
         <GenericButton
           text={'Send request'}
-          style={{marginTop: 10}}
+          style={{marginTop: 20}}
           fontSize={13}
+          onPress={this.sendReqOnPress}
         />
       </View>
     );
@@ -115,12 +145,13 @@ export default class SendReq extends React.PureComponent {
   };
 
   render() {
-    const {matchFound} = this.state;
+    const {showLoader} = this.state;
     return (
       <View style={styles.container}>
         {this.renderTextInput()}
-        {matchFound && this.renderUser()}
-        {matchFound === false && this.renderUserNotFound()}
+        {this.searchedObject && this.renderUser()}
+        {this.searchedObject === false && this.renderUserNotFound()}
+        {showLoader && this.renderLoader()}
       </View>
     );
   }
@@ -143,3 +174,25 @@ const styles = StyleSheet.create({
 });
 
 SendReq.propTypes = {};
+
+const mapStateToProps = state => {
+  return {
+    token: state.Login.token,
+  };
+};
+
+function mapDispatchToProps(dispatch) {
+  return {
+    sendRequest: (token, username) => {
+      return dispatch(sendReq(token, username));
+    },
+    searchUsername: (token, username, callback) => {
+      return dispatch(searchUser(token, username, callback));
+    },
+  };
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(SendReq);

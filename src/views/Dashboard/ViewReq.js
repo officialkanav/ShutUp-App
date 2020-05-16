@@ -38,6 +38,9 @@ class ViewReq extends React.PureComponent {
       token,
     } = this.props;
     if (prevProps !== this.props) {
+      if (prevProps.reqReceived !== null && reqReceived === null) {
+        navigate('StartScreen');
+      }
       if (attemptingSearch) {
         this.setState({showLoader: true});
       } else if (!attemptingSearch && this.state.showLoader) {
@@ -104,7 +107,9 @@ class ViewReq extends React.PureComponent {
     const {showLoader} = this.state;
     return (
       <View style={styles.container}>
-        {!showLoader && this.pendingRequests.length === 0
+        {!showLoader &&
+        this.pendingRequests &&
+        this.pendingRequests.length === 0
           ? this.renderUserNotFound()
           : this.renderFriendList()}
         {showLoader && this.renderLoader()}
