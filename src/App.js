@@ -1,7 +1,8 @@
 import React from 'react';
 import AppNavigator from './appNavigator/AppNavigator';
 import {Provider} from 'react-redux';
-import Store from './store/store';
+import {persistor, store} from './store/store';
+import {PersistGate} from 'redux-persist/integration/react';
 
 export default class App extends React.PureComponent {
   constructor(props) {
@@ -9,8 +10,10 @@ export default class App extends React.PureComponent {
   }
   render() {
     return (
-      <Provider store={Store}>
-        <AppNavigator />
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <AppNavigator />
+        </PersistGate>
       </Provider>
     );
   }

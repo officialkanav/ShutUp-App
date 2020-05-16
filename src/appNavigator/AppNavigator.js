@@ -43,7 +43,7 @@ export default class AppNavigator extends React.PureComponent {
               headerTitle: 'ShutUp',
               headerTintColor: colors.darkGray,
               headerStyle: {backgroundColor: colors.lightGray},
-              headerBackTitle: null,
+              headerLeft: null,
             }}
           />
           <Stack.Screen

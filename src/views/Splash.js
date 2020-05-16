@@ -3,9 +3,10 @@ import React from 'react';
 import {StyleSheet, View, Text} from 'react-native';
 import colors from '../utils/colors';
 import CircleLogo from './CircleLogo';
-import {loginAsync, logout} from '../actions/loginAction';
+import {authenticateToken} from '../actions/loginAction';
 import {connect} from 'react-redux';
 import Spinner from 'react-native-spinkit';
+import Toast from 'react-native-simple-toast';
 
 class Splash extends React.PureComponent {
   constructor(props) {
@@ -17,31 +18,31 @@ class Splash extends React.PureComponent {
 
   componentDidMount() {
     const {
-      username,
-      password,
+      token,
       navigation: {navigate},
       sendLoginReq,
     } = this.props;
-    if (username === null) {
+    if (token === null) {
       navigate('StartScreen');
     } else {
       // eslint-disable-next-line react/no-did-mount-set-state
       this.setState({showLoader: true});
-      sendLoginReq(username, password);
+      sendLoginReq(token);
     }
   }
 
   componentDidUpdate(prevProps) {
     const {
       attemptingLogin,
-      username,
+      name,
       navigation: {navigate},
     } = this.props;
     if (prevProps !== this.props) {
       if (!attemptingLogin && this.state.showLoader) {
-        if (username === null) {
+        if (name === null) {
           return navigate('StartScreen');
         } else {
+          Toast.show('Logging in ' + name);
           return navigate('DashboardScreen');
         }
       }
@@ -112,8 +113,8 @@ const mapStateToProps = state => {
 
 function mapDispatchToProps(dispatch) {
   return {
-    sendLoginReq: (username, password) => {
-      return dispatch(loginAsync(username, password));
+    sendLoginReq: token => {
+      return dispatch(authenticateToken(token));
     },
   };
 }
