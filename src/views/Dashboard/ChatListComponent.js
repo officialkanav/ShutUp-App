@@ -5,10 +5,12 @@ import PropType from 'prop-types';
 // import PropTypes from 'prop-types';
 import colors from '../../utils/colors';
 import GenericText from '../../utils/GenericText';
+import {acceptReq, rejectReq} from '../../actions/friendsAction';
+import {connect} from 'react-redux';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-export default class ChatListComponent extends React.PureComponent {
+class ChatListComponent extends React.PureComponent {
   constructor(props) {
     super(props);
   }
@@ -22,6 +24,7 @@ export default class ChatListComponent extends React.PureComponent {
   };
 
   renderRequestButtons = () => {
+    const {acceptRequest, rejectRequest, token, username} = this.props;
     return (
       <View
         style={{
@@ -31,9 +34,13 @@ export default class ChatListComponent extends React.PureComponent {
           justifyContent: 'center',
           alignItems: 'center',
         }}>
-        {this.reqButtonHelper('+', () => {})}
+        {this.reqButtonHelper('+', () => {
+          acceptRequest(token, username);
+        })}
         <View style={{marginLeft: 15}}>
-          {this.reqButtonHelper('-', () => {})}
+          {this.reqButtonHelper('-', () => {
+            rejectRequest(token, username);
+          })}
         </View>
       </View>
     );
@@ -106,3 +113,25 @@ ChatListComponent.propTypes = {
 ChatListComponent.defaultProps = {
   showRequestButtons: false,
 };
+
+const mapStateToProps = state => {
+  return {
+    token: state.Login.token,
+  };
+};
+
+function mapDispatchToProps(dispatch) {
+  return {
+    acceptRequest: (token, username) => {
+      return dispatch(acceptReq(token, username));
+    },
+    rejectRequest: (token, username) => {
+      return dispatch(rejectReq(token, username));
+    },
+  };
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(ChatListComponent);

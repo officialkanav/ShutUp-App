@@ -1,3 +1,4 @@
+/* eslint-disable react/no-did-update-set-state */
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {StyleSheet, View, Text} from 'react-native';
@@ -40,9 +41,11 @@ class Splash extends React.PureComponent {
     if (prevProps !== this.props) {
       if (!attemptingLogin && this.state.showLoader) {
         if (name === null) {
+          this.setState({showLoader: false});
           return navigate('StartScreen');
         } else {
           Toast.show('Logging in ' + name);
+          this.setState({showLoader: false});
           return navigate('DashboardScreen');
         }
       }

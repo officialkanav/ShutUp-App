@@ -9,6 +9,7 @@ const persistConfig = {
   key: 'test1',
   storage: AsyncStorage,
   stateReconciler: autoMergeLevel2,
+  blacklist: ['Friends'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -1,4 +1,4 @@
-export const initialSettings = {
+export const initialState = {
   username: null,
   name: null,
   friends: null,
@@ -32,7 +32,7 @@ const logoutUser = () => {
   };
 };
 
-export default function loginReducer(state = initialSettings, action) {
+export default function loginReducer(state = initialState, action) {
   switch (action.type) {
     case 'LOGIN_USER':
       return loginUser(state, action.payLoad);
