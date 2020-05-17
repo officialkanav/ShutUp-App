@@ -27,7 +27,7 @@ export default class Dashboard extends React.PureComponent {
           inactiveTintColor: colors.darkGray,
         }}>
         <Tab.Screen name="Chat" component={ChatList} />
-        <Tab.Screen name="Add Friend" component={SendReq} />
+        <Tab.Screen name="Search" component={SendReq} />
         <Tab.Screen name="Requests" component={ViewReq} />
       </Tab.Navigator>
     );

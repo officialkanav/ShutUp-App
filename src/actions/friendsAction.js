@@ -204,7 +204,9 @@ export function searchUser(token, username, callback) {
         callback(false, json);
       })
       .catch(err => {
-        Toast.show(JSON.stringify(err.message), Toast.SHORT);
+        if (err.message !== 'No user found') {
+          Toast.show(JSON.stringify(err.message), Toast.SHORT);
+        }
         if (err.message === 'Please authenticate properly') {
           return dispatch(logout());
         }

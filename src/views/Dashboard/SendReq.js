@@ -15,6 +15,8 @@ import GenericButton from '../../utils/GenericButton';
 import {sendReq, searchUser} from '../../actions/friendsAction';
 import {connect} from 'react-redux';
 import Spinner from 'react-native-spinkit';
+import Toast from 'react-native-simple-toast';
+import {compareId} from '../../utils/helperFunctions';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -92,12 +94,37 @@ class SendReq extends React.PureComponent {
     );
   };
 
+  isUserFriend = () => {
+    const {friends} = this.props;
+    const searchedId = this.searchedObject._id;
+    if (friends) {
+      for (let i = 0; i < friends.length; i++) {
+        if (compareId(friends[i], searchedId)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  openChatOnPress = () => {
+    const {username, name} = this.searchedObject;
+    this.props.navigation.navigate('ChattingScreen', {
+      friend: {username, name},
+    });
+  };
+
   sendReqOnPress = () => {
     const {token, sendRequest} = this.props;
     sendRequest(token, this.searchedObject.username);
   };
 
   renderUser = () => {
+    const {myUsername} = this.props;
+    const isFriend = this.isUserFriend();
+    const text = isFriend ? 'Open Chat' : 'Send Request';
+    const onPress = isFriend ? this.openChatOnPress : this.sendReqOnPress;
+    const showButton = this.searchedObject.username !== myUsername;
     return (
       <View
         style={{
@@ -118,17 +145,25 @@ class SendReq extends React.PureComponent {
           }}
         />
         <GenericText
-          text={this.searchedObject.username}
+          text={this.searchedObject.name}
           color={colors.lightGray}
           size={50}
           style={{marginLeft: 10}}
         />
-        <GenericButton
-          text={'Send request'}
-          style={{marginTop: 20}}
-          fontSize={13}
-          onPress={this.sendReqOnPress}
+        <GenericText
+          text={`@${this.searchedObject.username}`}
+          color={colors.lightGray}
+          size={15}
+          style={{marginTop: 1}}
         />
+        {showButton && (
+          <GenericButton
+            text={text}
+            style={{marginTop: 20}}
+            fontSize={13}
+            onPress={onPress}
+          />
+        )}
       </View>
     );
   };
@@ -178,6 +213,8 @@ SendReq.propTypes = {};
 const mapStateToProps = state => {
   return {
     token: state.Login.token,
+    friends: state.Login.friends,
+    myUsername: state.Login.username,
   };
 };
 

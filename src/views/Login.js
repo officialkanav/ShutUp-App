@@ -161,10 +161,10 @@ const styles = StyleSheet.create({
 
 Login.propTypes = {
   type: PropTypes.string,
-  sendLoginReq: PropTypes.func.isRequired,
-  username: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  token: PropTypes.string.isRequired,
+  sendLoginReq: PropTypes.func,
+  username: PropTypes.string,
+  name: PropTypes.string,
+  token: PropTypes.string,
 };
 
 const mapStateToProps = state => {
