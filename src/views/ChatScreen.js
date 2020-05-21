@@ -8,54 +8,32 @@ import {
   TextInput,
   KeyboardAvoidingView,
 } from 'react-native';
-import io from 'socket.io-client';
 import colors from '../utils/colors';
 import GenericText from '../utils/GenericText';
 import CircleLogo from '../views/CircleLogo';
-import constants from '../utils/constants';
 import {connect} from 'react-redux';
-import Toast from 'react-native-simple-toast';
+import {addChat} from '../actions/chatAction';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 class ChatScreen extends React.PureComponent {
   constructor(props) {
     super(props);
+    const {chatArray} = props;
     this.state = {
-      chatArray: [],
+      chatArray: chatArray ? chatArray : [],
       newChat: '',
     };
-    this.props.navigation.addListener('focus', this.handleFocusListener);
-    this.props.navigation.addListener('blur', this.handleBlurListener);
+    this.socket = props.route.params.socket;
   }
 
-  // componentDidMount() {
-  //   this.handleFocusListener();
-  // }
-
-  // handleFocusListener = () => {
-  //   this.socket = io(constants.server, {});
-  //   const {username} = this.props;
-  //   this.socket.emit('join', username);
-  //   this.socket.on('get_message', messageObject => {
-  //     const message = {
-  //       text: messageObject.message,
-  //       sender: messageObject.fromUser,
-  //     };
-  //     this.setState({chatArray: [message, ...this.state.chatArray]});
-  //   });
-  //   this.socket.on('notOnlineError', () => {
-  //     Toast.show('The user is not online yet', Toast.SHORT);
-  //     const tempArray = this.state.chatArray;
-  //     tempArray.pop();
-  //     this.setState({chatArray: [...tempArray]});
-  //   });
-  // };
-
-  // handleBlurListener = () => {
-  //   const {username} = this.props;
-  //   this.socket.emit('exit', username);
-  // };
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      const {chatArray} = this.props;
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({chatArray});
+    }
+  }
 
   renderNoChatsFound = () => {
     return (
@@ -113,7 +91,7 @@ class ChatScreen extends React.PureComponent {
         style={[
           styles.chatContainer,
           {backgroundColor: color},
-          byMe && {marginLeft: 0.36 * SCREEN_WIDTH},
+          byMe && {marginLeft: 0.325 * SCREEN_WIDTH},
         ]}>
         <GenericText
           text={chat.text}
@@ -127,7 +105,7 @@ class ChatScreen extends React.PureComponent {
 
   chatSendOnPress = () => {
     const newChat = this.state.newChat;
-    const {username} = this.props;
+    const {username, addChatToReducer} = this.props;
     const {friend} = this.props.route.params;
     if (newChat !== '') {
       const messageObject = {
@@ -137,9 +115,13 @@ class ChatScreen extends React.PureComponent {
       };
       this.setState({
         chatArray: [{text: newChat, sender: username}, ...this.state.chatArray],
+        newChat: '',
+      });
+      addChatToReducer({
+        friendUsername: messageObject.toUser,
+        message: {sender: messageObject.fromUser, text: messageObject.message},
       });
       this.socket.emit('send_message', messageObject);
-      this.setState({newChat: ''});
     }
   };
 
@@ -193,6 +175,8 @@ class ChatScreen extends React.PureComponent {
 
   render() {
     const noChats = this.state.chatArray.length === 0;
+    // const{chatArray} = this.props;
+    // alert(JSON.stringify(chatArray))
     return (
       <View style={styles.container}>
         {this.renderHeader()}
@@ -235,14 +219,22 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, props) => {
+  const {
+    friend: {username},
+  } = props.route.params;
   return {
     ...state.Login,
+    chatArray: state.Chats[username],
   };
 };
 
 function mapDispatchToProps(dispatch) {
-  return {};
+  return {
+    addChatToReducer: message => {
+      return dispatch(addChat(message));
+    },
+  };
 }
 
 export default connect(

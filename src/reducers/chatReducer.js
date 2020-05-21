@@ -5,8 +5,10 @@ const addChat = (state, payLoad) => {
   const {friendUsername, message} = payLoad;
   if (!newState[friendUsername]) {
     newState[friendUsername] = [];
+    newState[friendUsername].push(message);
+  } else {
+    newState[friendUsername] = [message, ...newState[friendUsername]];
   }
-  newState[friendUsername].unshift(message);
   return newState;
 };
 

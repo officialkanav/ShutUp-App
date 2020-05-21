@@ -13,6 +13,21 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 class ChatListComponent extends React.PureComponent {
   constructor(props) {
     super(props);
+    this.state = {
+      showOnlineSign: true,
+    };
+    this.socket = props.socket;
+  }
+
+  componentDidMount() {
+    const {username} = this.props;
+    this.socket.emit('status', username, isOnline => {
+      if (isOnline) {
+        this.setState({showOnlineSign: true});
+      } else {
+        this.setState({showOnlineSign: false});
+      }
+    });
   }
 
   reqButtonHelper = (text, onPress) => {
@@ -23,6 +38,20 @@ class ChatListComponent extends React.PureComponent {
     );
   };
 
+  renderOnlineIcon = () => {
+    return (
+      <View
+        style={{
+          backgroundColor: colors.green,
+          height: 15,
+          width: 15,
+          borderRadius: 15,
+          position: 'absolute',
+          right: 20,
+        }}
+      />
+    );
+  };
   renderRequestButtons = () => {
     const {acceptRequest, rejectRequest, token, username} = this.props;
     return (
@@ -48,6 +77,7 @@ class ChatListComponent extends React.PureComponent {
 
   renderChatCard = (username, name) => {
     const {onPress, showRequestButtons} = this.props;
+    const {showOnlineSign} = this.state;
     return (
       <TouchableOpacity
         style={styles.chatCardContainer}
@@ -80,6 +110,7 @@ class ChatListComponent extends React.PureComponent {
           />
         </View>
         {showRequestButtons && this.renderRequestButtons()}
+        {!showRequestButtons && showOnlineSign && this.renderOnlineIcon()}
       </TouchableOpacity>
     );
   };
@@ -108,6 +139,7 @@ ChatListComponent.propTypes = {
   username: PropType.string.isRequired,
   name: PropType.string.isRequired,
   showRequestButtons: PropType.bool,
+  socket: PropType.object,
 };
 
 ChatListComponent.defaultProps = {

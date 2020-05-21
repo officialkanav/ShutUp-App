@@ -6,10 +6,10 @@ import AsyncStorage from '@react-native-community/async-storage';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 
 const persistConfig = {
-  key: 'test1',
+  key: 'test3',
   storage: AsyncStorage,
   stateReconciler: autoMergeLevel2,
-  blacklist: ['Friends'],
+  blacklist: ['Friends', 'Chats'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
