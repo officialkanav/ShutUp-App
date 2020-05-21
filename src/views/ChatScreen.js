@@ -8,57 +8,67 @@ import {
   TextInput,
   KeyboardAvoidingView,
 } from 'react-native';
+import io from 'socket.io-client';
 import colors from '../utils/colors';
 import GenericText from '../utils/GenericText';
 import CircleLogo from '../views/CircleLogo';
+import constants from '../utils/constants';
+import {connect} from 'react-redux';
+import Toast from 'react-native-simple-toast';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-let chatArray = [
-  {text: 'egrjbwjfskjbjkbdvsdvsdvsdsvsbgwe 1', sender: 'me'},
-  {text: 'sdvsdvs 2', sender: 'friend'},
-  {text: 'dfbdfbdfbsdfb 3', sender: 'me'},
-  {text: 'sdvsdvs 4', sender: 'friend'},
-  {text: 'fsbdfdf 5', sender: 'me'},
-  {text: 'sdvsdvs 6', sender: 'friend'},
-  {text: 'gfgnfgnfrg 7', sender: 'me'},
-  {text: 'sdvsdvs 8', sender: 'friend'},
-  {text: 'egrjbwjfsdvsdvsdvsdsvsbgwe 9', sender: 'me'},
-  {text: 'sdvsdvs 10', sender: 'friend'},
-  {text: 'fdsfvsfv', sender: 'me'},
-  {text: 'sdvsdvs', sender: 'friend'},
-  {text: 'mkfbjfosdvh dsufhsdu gwueg iuwiuv ewiufw', sender: 'me'},
-  {text: 'sdvsdvs', sender: 'friend'},
-  {text: 'sdvsdvs', sender: 'friend'},
-  {text: 'fsbdfdf', sender: 'me'},
-  {text: 'sdvsdvs', sender: 'friend'},
-  {text: 'gfgnfgnfrg', sender: 'me'},
-  {text: 'sdvsdvs', sender: 'friend'},
-  {text: 'egrjbwjfsdvsdvsdvsdsvsbgwe', sender: 'me'},
-  {text: 'sdvsdvs', sender: 'friend'},
-  {text: 'fdsfvsfv', sender: 'me'},
-  {text: 'sdvsdvs', sender: 'friend'},
-  {text: 'mkfbjfosdvh dsufhsdu gwueg iuwiuv ewiufw', sender: 'me'},
-  {text: 'sdvsdvs', sender: 'friend'},
-  {text: 'sdvsdvs', sender: 'friend'},
-  {text: 'fsbdfdf', sender: 'me'},
-  {text: 'sdvsdvs', sender: 'friend'},
-  {text: 'gfgnfgnfrg', sender: 'me'},
-  {text: 'sdvsdvs', sender: 'friend'},
-  {text: 'egrjbwjfsdvsdvsdvsdsvsbgwe', sender: 'me'},
-  {text: 'sdvsdvs', sender: 'friend'},
-  {text: 'fdsfvsfv', sender: 'me'},
-  {text: 'sdvsdvs', sender: 'friend'},
-  {text: 'mkfbjfosdvh dsufhsdu gwueg iuwiuv ewiufw', sender: 'me'},
-  {text: 'sdvsdvs', sender: 'friend'},
-];
 
-export default class ChatScreen extends React.PureComponent {
+class ChatScreen extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      chatArray: [],
       newChat: '',
     };
+    this.props.navigation.addListener('focus', this.handleFocusListener);
+    this.props.navigation.addListener('blur', this.handleBlurListener);
   }
+
+  // componentDidMount() {
+  //   this.handleFocusListener();
+  // }
+
+  // handleFocusListener = () => {
+  //   this.socket = io(constants.server, {});
+  //   const {username} = this.props;
+  //   this.socket.emit('join', username);
+  //   this.socket.on('get_message', messageObject => {
+  //     const message = {
+  //       text: messageObject.message,
+  //       sender: messageObject.fromUser,
+  //     };
+  //     this.setState({chatArray: [message, ...this.state.chatArray]});
+  //   });
+  //   this.socket.on('notOnlineError', () => {
+  //     Toast.show('The user is not online yet', Toast.SHORT);
+  //     const tempArray = this.state.chatArray;
+  //     tempArray.pop();
+  //     this.setState({chatArray: [...tempArray]});
+  //   });
+  // };
+
+  // handleBlurListener = () => {
+  //   const {username} = this.props;
+  //   this.socket.emit('exit', username);
+  // };
+
+  renderNoChatsFound = () => {
+    return (
+      <View style={{alignItems: 'center', flex: 1}}>
+        <GenericText
+          text={'Start the chat by sending a message!'}
+          size={20}
+          color={colors.lightGray}
+          style={{marginTop: 80}}
+        />
+      </View>
+    );
+  };
 
   renderHeader = () => {
     const {
@@ -94,7 +104,8 @@ export default class ChatScreen extends React.PureComponent {
   };
 
   renderChats = chat => {
-    const byMe = chat.sender === 'me';
+    const {username} = this.props;
+    const byMe = chat.sender === username;
     const color = byMe ? colors.darkGray : colors.lightGray;
     const textColor = byMe ? colors.lightGray : colors.darkGray;
     return (
@@ -114,8 +125,25 @@ export default class ChatScreen extends React.PureComponent {
     );
   };
 
-  renderTextInput = () => {
+  chatSendOnPress = () => {
     const newChat = this.state.newChat;
+    const {username} = this.props;
+    const {friend} = this.props.route.params;
+    if (newChat !== '') {
+      const messageObject = {
+        message: this.state.newChat,
+        fromUser: username,
+        toUser: friend.username,
+      };
+      this.setState({
+        chatArray: [{text: newChat, sender: username}, ...this.state.chatArray],
+      });
+      this.socket.emit('send_message', messageObject);
+      this.setState({newChat: ''});
+    }
+  };
+
+  renderTextInput = () => {
     return (
       <KeyboardAvoidingView
         behavior="height"
@@ -140,11 +168,7 @@ export default class ChatScreen extends React.PureComponent {
           <CircleLogo
             radius={40}
             noAnimation={true}
-            onPress={() => {
-              newChat !== '' &&
-                chatArray.unshift({text: newChat, sender: 'Me'});
-              this.setState({newChat: ''});
-            }}
+            onPress={this.chatSendOnPress}
             textSize={7}
           />
         </View>
@@ -153,13 +177,12 @@ export default class ChatScreen extends React.PureComponent {
   };
 
   renderFlatList = () => {
-    // const data = chatArray.reverse()
     return (
       <FlatList
-        extraData={chatArray}
+        extraData={this.state.chatArray}
         inverted
         keyExtractor={(item, index) => index.toString()}
-        data={chatArray}
+        data={this.state.chatArray}
         renderItem={({item}) => {
           return this.renderChats(item);
         }}
@@ -169,10 +192,12 @@ export default class ChatScreen extends React.PureComponent {
   };
 
   render() {
+    const noChats = this.state.chatArray.length === 0;
     return (
       <View style={styles.container}>
         {this.renderHeader()}
-        {this.renderFlatList()}
+        {!noChats && this.renderFlatList()}
+        {noChats && this.renderNoChatsFound()}
         {this.renderTextInput()}
       </View>
     );
@@ -209,3 +234,18 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
 });
+
+const mapStateToProps = state => {
+  return {
+    ...state.Login,
+  };
+};
+
+function mapDispatchToProps(dispatch) {
+  return {};
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(ChatScreen);

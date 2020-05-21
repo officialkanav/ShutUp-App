@@ -27,7 +27,7 @@ export default class Startpage extends React.PureComponent {
       <GenericButton
         text={'Login'}
         fontSize={20}
-        style={{height: 50, width, marginTop: 40}}
+        style={{height: 50, width, marginTop: 100}}
         onPress={() => {
           navigate('LoginScreen', {
             type: 'Login',

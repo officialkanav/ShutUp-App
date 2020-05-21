@@ -121,6 +121,7 @@ class ChatList extends React.PureComponent {
       </View>
     );
   };
+
   cardOnPress = (username, name) => {
     this.props.navigation.navigate('ChattingScreen', {
       friend: {username, name},
