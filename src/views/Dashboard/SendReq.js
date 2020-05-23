@@ -15,7 +15,6 @@ import GenericButton from '../../utils/GenericButton';
 import {sendReq, searchUser} from '../../actions/friendsAction';
 import {connect} from 'react-redux';
 import Spinner from 'react-native-spinkit';
-import Toast from 'react-native-simple-toast';
 import {compareId} from '../../utils/helperFunctions';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -130,10 +129,9 @@ class SendReq extends React.PureComponent {
         style={{
           alignItems: 'center',
           backgroundColor: colors.darkGray,
-          height: 250,
-          width: 250,
+          width: 200,
+          marginTop: 15,
           borderRadius: 5,
-          marginTop: 80,
         }}>
         <View
           style={{
@@ -147,19 +145,19 @@ class SendReq extends React.PureComponent {
         <GenericText
           text={this.searchedObject.name}
           color={colors.lightGray}
-          size={50}
-          style={{marginLeft: 10}}
+          size={30}
+          style={{marginLeft: 10, textAlign: 'center'}}
         />
         <GenericText
           text={`@${this.searchedObject.username}`}
           color={colors.lightGray}
-          size={15}
+          size={10}
           style={{marginTop: 1}}
         />
         {showButton && (
           <GenericButton
             text={text}
-            style={{marginTop: 20}}
+            style={{margin: 20}}
             fontSize={13}
             onPress={onPress}
           />
