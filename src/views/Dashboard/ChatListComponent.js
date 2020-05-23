@@ -20,14 +20,16 @@ class ChatListComponent extends React.PureComponent {
   }
 
   componentDidMount() {
-    const {username} = this.props;
-    this.socket.emit('status', username, isOnline => {
-      if (isOnline) {
-        this.setState({showOnlineSign: true});
-      } else {
-        this.setState({showOnlineSign: false});
-      }
-    });
+    const {username, showRequestButtons} = this.props;
+    if (!showRequestButtons) {
+      this.socket.emit('status', username, isOnline => {
+        if (isOnline) {
+          this.setState({showOnlineSign: true});
+        } else {
+          this.setState({showOnlineSign: false});
+        }
+      });
+    }
   }
 
   reqButtonHelper = (text, onPress) => {
