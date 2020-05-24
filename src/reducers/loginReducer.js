@@ -1,4 +1,5 @@
 export const initialState = {
+  _id: null,
   username: null,
   name: null,
   friends: null,
@@ -10,6 +11,7 @@ export const initialState = {
 
 const loginUser = (state, payLoad) => {
   const newState = {...state};
+  newState._id = payLoad._id;
   newState.username = payLoad.username;
   newState.name = payLoad.name;
   newState.token = payLoad.token;
@@ -22,6 +24,7 @@ const loginUser = (state, payLoad) => {
 
 const logoutUser = () => {
   return {
+    _id: null,
     username: null,
     name: null,
     friends: null,

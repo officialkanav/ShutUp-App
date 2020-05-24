@@ -80,6 +80,9 @@ class ChatListComponent extends React.PureComponent {
   renderChatCard = (username, name) => {
     const {onPress, showRequestButtons} = this.props;
     const {showOnlineSign} = this.state;
+    const nameWidth = showRequestButtons
+      ? SCREEN_WIDTH - 145
+      : SCREEN_WIDTH - 10;
     return (
       <TouchableOpacity
         style={styles.chatCardContainer}
@@ -98,12 +101,14 @@ class ChatListComponent extends React.PureComponent {
         />
         {/* image above */}
         <View>
-          <GenericText
-            text={name}
-            color={colors.darkGray}
-            size={30}
-            style={{marginLeft: 10}}
-          />
+          <View style={{width: nameWidth}}>
+            <GenericText
+              text={name}
+              color={colors.darkGray}
+              size={30}
+              style={{marginLeft: 10}}
+            />
+          </View>
           <GenericText
             text={`@${username}`}
             color={colors.darkGray}
@@ -125,7 +130,7 @@ class ChatListComponent extends React.PureComponent {
 
 const styles = StyleSheet.create({
   chatCardContainer: {
-    height: 60,
+    paddingVertical: 5,
     width: SCREEN_WIDTH - 10,
     borderRadius: 5,
     flexDirection: 'row',
