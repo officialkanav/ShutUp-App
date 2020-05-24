@@ -43,6 +43,8 @@ export default function loginReducer(state = initialState, action) {
       return logoutUser();
     case 'ATTEMPTING_LOGIN':
       return {...state, attemptingLogin: true};
+    case 'LOGIN_COMPLETE':
+      return {...state, attemptingLogin: false};
   }
   return state;
 }

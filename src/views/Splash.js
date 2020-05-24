@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable react/no-did-update-set-state */
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
@@ -8,6 +9,8 @@ import {authenticateToken} from '../actions/loginAction';
 import {connect} from 'react-redux';
 import Spinner from 'react-native-spinkit';
 import Toast from 'react-native-simple-toast';
+import {getFriends, getReqReceived} from '../actions/friendsAction';
+import {getChats} from '../actions/chatAction';
 
 class Splash extends React.PureComponent {
   constructor(props) {
@@ -15,39 +18,67 @@ class Splash extends React.PureComponent {
     this.state = {
       showLoader: false,
     };
+    this.loginComplete = false;
+    this.reqComplete = false;
+    this.friendsComplete = false;
+    this.chatsComplete = false;
   }
 
   componentDidMount() {
     const {
       token,
       navigation: {navigate},
-      sendLoginReq,
+      authenticateToken,
+      getFriends,
+      getReqReceived,
+      getChats,
     } = this.props;
     if (token === null) {
       navigate('StartScreen');
     } else {
       // eslint-disable-next-line react/no-did-mount-set-state
       this.setState({showLoader: true});
-      sendLoginReq(token);
+      this.loadingLogin = true;
+      authenticateToken(token);
+      getFriends(token);
+      getReqReceived(token);
+      getChats(token);
     }
   }
 
   componentDidUpdate(prevProps) {
     const {
-      attemptingLogin,
       name,
       navigation: {navigate},
+      attemptingLogin,
+      attemptingSearch,
+      attemptingChatSearch,
+      attemptingReqSearch,
     } = this.props;
+
     if (prevProps !== this.props) {
-      if (!attemptingLogin && this.state.showLoader) {
-        if (name === null) {
+      if (!attemptingLogin && prevProps.attemptingLogin) {
+        if (!name) {
           this.setState({showLoader: false});
           return navigate('StartScreen');
-        } else {
-          Toast.show('Logging in ' + name);
-          this.setState({showLoader: false});
-          return navigate('DashboardScreen');
         }
+        this.loginComplete = true;
+      }
+      if (!attemptingSearch && prevProps.attemptingSearch) {
+        this.friendsComplete = true;
+      }
+      if (!attemptingReqSearch && prevProps.attemptingReqSearch) {
+        this.reqComplete = true;
+      }
+      if (!attemptingChatSearch && prevProps.attemptingChatSearch) {
+        this.chatsComplete = true;
+      }
+      console.log(attemptingLogin, attemptingReqSearch, attemptingSearch);
+      console.log(this.loginComplete, this.reqComplete, this.friendsComplete)
+      if (this.loginComplete && this.friendsComplete && this.reqComplete) {
+        Toast.show('ShutUp ' + name);
+        this.setState({showLoader: false});
+        return navigate('DashboardScreen');
       }
     }
   }
@@ -111,14 +142,20 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => {
   return {
     ...state.Login,
+    attemptingSearch: state.Friends.attemptingSearch,
+    attemptingReqSearch: state.Friends.attemptingReqSearch,
+    attemptingChatSearch: state.Chats.attemptingChatSearch,
   };
 };
 
 function mapDispatchToProps(dispatch) {
   return {
-    sendLoginReq: token => {
+    authenticateToken: token => {
       return dispatch(authenticateToken(token));
     },
+    getFriends: token => dispatch(getFriends(token)),
+    getReqReceived: token => dispatch(getReqReceived(token)),
+    getChats: token => dispatch(getChats(token)),
   };
 }
 

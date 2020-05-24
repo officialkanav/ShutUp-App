@@ -91,6 +91,7 @@ export function SignUpAsync(name, username, password) {
 export function authenticateToken(token) {
   const auth = 'Bearer '.concat(token);
   return function(dispatch) {
+    dispatch({type: 'ATTEMPTING_LOGIN'});
     return fetch(constants.server.concat('/users/me'), {
       method: 'GET',
       headers: {

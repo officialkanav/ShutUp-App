@@ -40,14 +40,14 @@ export function getFriends(token) {
   };
 }
 
-export function setReqRecieved(payLoad) {
-  return {type: 'GET_REQ_RECIEVED', payLoad};
+export function setReqReceived(payLoad) {
+  return {type: 'GET_REQ_RECEIVED', payLoad};
 }
 
-export function getReqRecieved(token) {
+export function getReqReceived(token) {
   const auth = 'Bearer '.concat(token);
   return function(dispatch) {
-    dispatch({type: 'ATTEMPTING_SEARCH'});
+    dispatch({type: 'ATTEMPTING_REQ_SEARCH'});
     return fetch(constants.server.concat('/users/pendingRequests'), {
       method: 'GET',
       headers: {
@@ -63,14 +63,14 @@ export function getReqRecieved(token) {
         if (json.err) {
           throw new Error(json.err);
         }
-        return dispatch(setReqRecieved(json));
+        return dispatch(setReqReceived(json));
       })
       .catch(err => {
         Toast.show(JSON.stringify(err.message), Toast.SHORT);
         if (err.message === 'Please authenticate properly') {
           return dispatch(logout());
         }
-        return dispatch({type: 'SEARCH_COMPLETE'});
+        return dispatch({type: 'REQ_SEARCH_COMPLETE'});
       });
   };
 }
@@ -98,7 +98,7 @@ export function acceptReq(token, username) {
           throw new Error(json.err);
         }
         Toast.show('Request Accepted', Toast.SHORT);
-        return dispatch(getReqRecieved(token));
+        return dispatch(getReqReceived(token));
       })
       .catch(err => {
         Toast.show(JSON.stringify(err.message), Toast.SHORT);
@@ -133,7 +133,7 @@ export function rejectReq(token, username) {
           throw new Error(json.err);
         }
         Toast.show('Request Rejected', Toast.SHORT);
-        return dispatch(getReqRecieved(token));
+        return dispatch(getReqReceived(token));
       })
       .catch(err => {
         Toast.show(JSON.stringify(err.message), Toast.SHORT);

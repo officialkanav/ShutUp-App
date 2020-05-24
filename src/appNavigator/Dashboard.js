@@ -1,22 +1,26 @@
-/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {View} from 'react-native';
 import colors from '../utils/colors';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import ChatList from '../views/Dashboard/ChatList';
 import SendReq from '../views/Dashboard/SendReq';
 import ViewReq from '../views/Dashboard/ViewReq';
+import io from 'socket.io-client';
+import constants from '../utils/constants';
+import {connect} from 'react-redux';
 
 const Tab = createBottomTabNavigator();
 
-export default class Dashboard extends React.PureComponent {
+class Dashboard extends React.PureComponent {
   constructor(props) {
     super(props);
+    this.socket = io(constants.server, {});
+    this.socket.emit('join', props.username);
   }
 
   render() {
     return (
       <Tab.Navigator
+        screenProps={{socket: this.socket}}
         tabBarOptions={{
           labelStyle: {
             fontSize: 18,
@@ -26,10 +30,31 @@ export default class Dashboard extends React.PureComponent {
           activeTintColor: colors.lightGray,
           inactiveTintColor: colors.darkGray,
         }}>
-        <Tab.Screen name="Chat" component={ChatList} />
-        <Tab.Screen name="Search" component={SendReq} />
-        <Tab.Screen name="Requests" component={ViewReq} />
+        <Tab.Screen name="Chat">
+          {props => <ChatList {...props} socket={this.socket} />}
+        </Tab.Screen>
+        <Tab.Screen name="Search">
+          {props => <SendReq {...props} socket={this.socket} />}
+        </Tab.Screen>
+        <Tab.Screen name="Requests">
+          {props => <ViewReq {...props} socket={this.socket} />}
+        </Tab.Screen>
       </Tab.Navigator>
     );
   }
 }
+
+const mapStateToProps = state => {
+  return {
+    username: state.Login.username,
+  };
+};
+
+function mapDispatchToProps(dispatch) {
+  return {};
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Dashboard);

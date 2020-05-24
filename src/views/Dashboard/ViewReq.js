@@ -5,7 +5,7 @@ import {View, StyleSheet, FlatList} from 'react-native';
 import colors from '../../utils/colors';
 import GenericText from '../../utils/GenericText';
 import ChatListComponent from './ChatListComponent';
-import {getReqRecieved} from '../../actions/friendsAction';
+import {getReqReceived} from '../../actions/friendsAction';
 import {connect} from 'react-redux';
 import Spinner from 'react-native-spinkit';
 
@@ -46,10 +46,9 @@ class ViewReq extends React.PureComponent {
       } else if (!attemptingSearch && this.state.showLoader) {
         if (reqReceived === null) {
           this.setState({showLoader: false});
-          if (token) {
-            return navigate('DashboardScreen');
+          if (!token) {
+            return navigate('StartScreen');
           }
-          return navigate('StartScreen');
         } else {
           this.pendingRequests = reqReceived;
           this.setState({showLoader: false});
@@ -138,7 +137,7 @@ const mapStateToProps = state => {
 function mapDispatchToProps(dispatch) {
   return {
     getPendingRequests: token => {
-      return dispatch(getReqRecieved(token));
+      return dispatch(getReqReceived(token));
     },
   };
 }

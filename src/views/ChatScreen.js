@@ -94,7 +94,7 @@ class ChatScreen extends React.PureComponent {
           byMe && {marginLeft: 0.325 * SCREEN_WIDTH},
         ]}>
         <GenericText
-          text={chat.text}
+          text={chat.message}
           size={17}
           color={textColor}
           style={{position: 'relative', right: 0}}
@@ -110,16 +110,19 @@ class ChatScreen extends React.PureComponent {
     if (newChat !== '') {
       const messageObject = {
         message: this.state.newChat,
-        fromUser: username,
+        sender: username,
         toUser: friend.username,
       };
       this.setState({
-        chatArray: [{text: newChat, sender: username}, ...this.state.chatArray],
+        chatArray: [
+          {message: newChat, sender: username},
+          ...this.state.chatArray,
+        ],
         newChat: '',
       });
       addChatToReducer({
-        friendUsername: messageObject.toUser,
-        message: {sender: messageObject.fromUser, text: messageObject.message},
+        username: messageObject.toUser,
+        messageObject,
       });
       this.socket.emit('send_message', messageObject);
     }

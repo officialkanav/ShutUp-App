@@ -13,10 +13,8 @@ import {
 import colors from '../../utils/colors';
 import ChatListComponent from './ChatListComponent';
 import GenericText from '../../utils/GenericText';
-import {getFriends, refresh, logout} from '../../actions/friendsAction';
+import {refresh, logout} from '../../actions/friendsAction';
 import {addChat} from '../../actions/chatAction';
-import io from 'socket.io-client';
-import constants from '../../utils/constants';
 import Toast from 'react-native-simple-toast';
 import {connect} from 'react-redux';
 import Spinner from 'react-native-spinkit';
@@ -26,41 +24,24 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 class ChatList extends React.PureComponent {
   constructor(props) {
     super(props);
-    const {token, getFriendsList} = this.props;
+    const {friends} = props;
     this.state = {
       showLoader: false,
     };
-    this.friends = [];
-    this.socket = io(constants.server, {});
-    getFriendsList(token);
-    this.props.navigation.addListener('focus', this.handleFocusListener);
+    this.friends = friends ? friends : [];
+    this.socket = this.props.socket;
   }
 
   componentDidMount() {
-    const {username, addChatToReducer} = this.props;
+    const {addChatToReducer} = this.props;
     AppState.addEventListener('change', this.handleAppStateChange);
-    this.socket.emit('join', username);
     this.socket.on('get_message', messageObject => {
-      const message = {
-        text: messageObject.message,
-        sender: messageObject.fromUser,
-      };
-      addChatToReducer({friendUsername: message.sender, message});
+      addChatToReducer({username: messageObject.sender, messageObject});
     });
     this.socket.on('notOnlineError', () => {
       Toast.show('The user is not online yet', Toast.SHORT);
     });
   }
-
-  componentWillUnmount() {}
-
-  handleFocusListener = () => {
-    const {friends, token, getFriendsList} = this.props;
-    if (friends === null && !this.state.showLoader) {
-      this.setState({showLoader: true});
-      getFriendsList(token);
-    }
-  };
 
   handleAppStateChange = nextAppState => {
     const {username} = this.props;
@@ -229,7 +210,6 @@ const mapStateToProps = state => {
 
 function mapDispatchToProps(dispatch) {
   return {
-    getFriendsList: token => dispatch(getFriends(token)),
     logoutUser: () => dispatch(logout()),
     refreshApp: () => dispatch(refresh()),
     addChatToReducer: message => {
