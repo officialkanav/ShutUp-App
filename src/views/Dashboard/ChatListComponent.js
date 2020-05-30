@@ -3,7 +3,6 @@
 import React from 'react';
 import {View, StyleSheet, Dimensions, TouchableOpacity} from 'react-native';
 import PropType from 'prop-types';
-// import PropTypes from 'prop-types';
 import colors from '../../utils/colors';
 import GenericText from '../../utils/GenericText';
 import {acceptReq, rejectReq} from '../../actions/friendsAction';
