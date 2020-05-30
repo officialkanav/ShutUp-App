@@ -5,6 +5,10 @@ export function logout() {
   return {type: 'LOGOUT_USER'};
 }
 
+export function addFriend(user, isReqAccepted) {
+  return {type: 'ADD_FRIEND', payLoad: {user, isReqAccepted}};
+}
+
 export function setFriends(payLoad) {
   return {type: 'GET_FRIENDS', payLoad};
 }
@@ -75,10 +79,49 @@ export function getReqReceived(token) {
   };
 }
 
-export function acceptReq(token, username) {
+export function setReqSent(payLoad) {
+  return {type: 'GET_REQ_SENT', payLoad};
+}
+
+export function getReqSent(token) {
   const auth = 'Bearer '.concat(token);
   return function(dispatch) {
-    dispatch({type: 'ATTEMPTING_SEARCH'});
+    dispatch({type: 'ATTEMPTING_REQ_SENT_SEARCH'});
+    return fetch(constants.server.concat('/users/sentRequests'), {
+      method: 'GET',
+      headers: {
+        // eslint-disable-next-line prettier/prettier
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        // eslint-disable-next-line prettier/prettier
+        'Authorization': auth,
+      },
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (json.err) {
+          throw new Error(json.err);
+        }
+        return dispatch(setReqSent(json));
+      })
+      .catch(err => {
+        Toast.show(JSON.stringify(err.message), Toast.SHORT);
+        if (err.message === 'Please authenticate properly') {
+          return dispatch(logout());
+        }
+        return dispatch({type: 'REQ_SENT_SEARCH_COMPLETE'});
+      });
+  };
+}
+
+export function acceptReqOffline(userObject) {
+  return {type: 'ACCEPT_REQ', payLoad: userObject};
+}
+
+export function acceptReq(token, userObject) {
+  const auth = 'Bearer '.concat(token);
+  const username = userObject.username;
+  return function(dispatch) {
     return fetch(constants.server.concat('/acceptRequest'), {
       method: 'POST',
       headers: {
@@ -98,22 +141,26 @@ export function acceptReq(token, username) {
           throw new Error(json.err);
         }
         Toast.show('Request Accepted', Toast.SHORT);
-        return dispatch(getReqReceived(token));
+        // return dispatch(getReqReceived(token));
+        return dispatch(acceptReqOffline(userObject));
       })
       .catch(err => {
         Toast.show(JSON.stringify(err.message), Toast.SHORT);
         if (err.message === 'Please authenticate properly') {
           return dispatch(logout());
         }
-        return dispatch({type: 'SEARCH_COMPLETE'});
       });
   };
 }
 
-export function rejectReq(token, username) {
+export function rejectReqOffline(userObject) {
+  return {type: 'REJECT_REQ', payLoad: userObject};
+}
+
+export function rejectReq(token, userObject) {
   const auth = 'Bearer '.concat(token);
+  const username = userObject.username;
   return function(dispatch) {
-    dispatch({type: 'ATTEMPTING_SEARCH'});
     return fetch(constants.server.concat('/rejectRequest'), {
       method: 'POST',
       headers: {
@@ -133,14 +180,14 @@ export function rejectReq(token, username) {
           throw new Error(json.err);
         }
         Toast.show('Request Rejected', Toast.SHORT);
-        return dispatch(getReqReceived(token));
+        // return dispatch(getReqReceived(token));
+        return dispatch(rejectReqOffline(userObject));
       })
       .catch(err => {
         Toast.show(JSON.stringify(err.message), Toast.SHORT);
         if (err.message === 'Please authenticate properly') {
           return dispatch(logout());
         }
-        return dispatch({type: 'SEARCH_COMPLETE'});
       });
   };
 }
@@ -148,7 +195,6 @@ export function rejectReq(token, username) {
 export function sendReq(token, username) {
   const auth = 'Bearer '.concat(token);
   return function(dispatch) {
-    dispatch({type: 'ATTEMPTING_SEARCH'});
     return fetch(constants.server.concat('/sendRequest'), {
       method: 'POST',
       headers: {
@@ -168,14 +214,12 @@ export function sendReq(token, username) {
           throw new Error(json.err);
         }
         Toast.show('Request sent', Toast.SHORT);
-        return dispatch({type: 'SEARCH_COMPLETE'});
       })
       .catch(err => {
         Toast.show(JSON.stringify(err.message), Toast.SHORT);
         if (err.message === 'Please authenticate properly') {
           return dispatch(logout());
         }
-        return dispatch({type: 'SEARCH_COMPLETE'});
       });
   };
 }

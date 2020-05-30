@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   AppState,
 } from 'react-native';
-// import PropTypes from 'prop-types';
 import colors from '../../utils/colors';
 import ChatListComponent from './ChatListComponent';
 import GenericText from '../../utils/GenericText';
@@ -27,8 +26,9 @@ class ChatList extends React.PureComponent {
     const {friends} = props;
     this.state = {
       showLoader: false,
+      friends: friends ? friends : [],
     };
-    this.friends = friends ? friends : [];
+    // this.friends = friends ? friends : [];
     this.socket = this.props.socket;
   }
 
@@ -55,27 +55,17 @@ class ChatList extends React.PureComponent {
   componentDidUpdate(prevProps) {
     const {
       friends,
-      attemptingSearch,
+      attemptingFriendsSearch,
       navigation: {navigate},
-      token,
     } = this.props;
     if (prevProps !== this.props) {
       if (prevProps.friends !== null && friends === null) {
         return navigate('StartScreen');
       }
-      if (attemptingSearch) {
+      if (attemptingFriendsSearch) {
         this.setState({showLoader: true});
-      } else if (!attemptingSearch && this.state.showLoader) {
-        if (friends === null) {
-          this.setState({showLoader: false});
-          if (token) {
-            return navigate('DashboardScreen');
-          }
-          return navigate('StartScreen');
-        } else {
-          this.friends = friends;
-          this.setState({showLoader: false});
-        }
+      } else {
+        this.setState({showLoader: false, friends});
       }
     }
   }
@@ -157,7 +147,8 @@ class ChatList extends React.PureComponent {
     return (
       <FlatList
         keyExtractor={(item, index) => index.toString()}
-        data={this.friends}
+        extraData={this.state.friends}
+        data={this.state.friends}
         renderItem={({item}) => {
           return this.renderChatCard(item.username, item.name);
         }}
@@ -167,11 +158,13 @@ class ChatList extends React.PureComponent {
 
   render() {
     const {showLoader} = this.state;
-
+    if (!this.state.friends) {
+      return <View />;
+    }
     return (
       <View style={styles.container}>
         {this.renderHeader()}
-        {!showLoader && this.friends.length === 0
+        {!showLoader && this.state.friends.length === 0
           ? this.renderUserNotFound()
           : this.renderList()}
       </View>
@@ -202,7 +195,7 @@ ChatList.propTypes = {};
 const mapStateToProps = state => {
   return {
     friends: state.Friends.friends,
-    attemptingSearch: state.Friends.attemptingSearch,
+    attemptingFriendsSearch: state.Friends.attemptingFriendsSearch,
     username: state.Login.username,
     token: state.Login.token,
   };

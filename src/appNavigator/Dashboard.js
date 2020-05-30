@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 import React from 'react';
 import colors from '../utils/colors';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -7,14 +8,19 @@ import ViewReq from '../views/Dashboard/ViewReq';
 import io from 'socket.io-client';
 import constants from '../utils/constants';
 import {connect} from 'react-redux';
+import {addFriend} from '../actions/friendsAction';
 
 const Tab = createBottomTabNavigator();
 
 class Dashboard extends React.PureComponent {
   constructor(props) {
     super(props);
+    const {addFriend} = props;
     this.socket = io(constants.server, {});
     this.socket.emit('join', props.username);
+    this.socket.on('request_accepted', friendObject => {
+      addFriend(friendObject, false);
+    });
   }
 
   render() {
@@ -51,7 +57,10 @@ const mapStateToProps = state => {
 };
 
 function mapDispatchToProps(dispatch) {
-  return {};
+  return {
+    addFriend: (user, isReqAccepted) =>
+      dispatch(addFriend(user, isReqAccepted)),
+  };
 }
 
 export default connect(

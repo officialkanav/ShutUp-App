@@ -5,54 +5,33 @@ import {View, StyleSheet, FlatList} from 'react-native';
 import colors from '../../utils/colors';
 import GenericText from '../../utils/GenericText';
 import ChatListComponent from './ChatListComponent';
-import {getReqReceived} from '../../actions/friendsAction';
 import {connect} from 'react-redux';
 import Spinner from 'react-native-spinkit';
 
 class ViewReq extends React.PureComponent {
   constructor(props) {
-    const {getPendingRequests, token} = props;
+    const {reqReceived} = props;
     super(props);
     this.state = {
-      showLoader: true,
+      showLoader: false,
+      pendingRequests: reqReceived ? reqReceived : [],
     };
-    this.pendingRequests = [];
-    getPendingRequests(token);
-    this.props.navigation.addListener('focus', this.handleFocusListener);
   }
-
-  handleFocusListener = () => {
-    const {reqReceived, token, getPendingRequests} = this.props;
-    if (reqReceived === null && !this.state.showLoader) {
-      this.setState({showLoader: true});
-      getPendingRequests(token);
-    }
-    this.pendingRequests = reqReceived;
-  };
 
   componentDidUpdate(prevProps) {
     const {
-      attemptingSearch,
+      attemptingReqReceivedSearch,
       reqReceived,
       navigation: {navigate},
-      token,
     } = this.props;
     if (prevProps !== this.props) {
       if (prevProps.reqReceived !== null && reqReceived === null) {
         navigate('StartScreen');
       }
-      if (attemptingSearch) {
+      if (attemptingReqReceivedSearch) {
         this.setState({showLoader: true});
-      } else if (!attemptingSearch && this.state.showLoader) {
-        if (reqReceived === null) {
-          this.setState({showLoader: false});
-          if (!token) {
-            return navigate('StartScreen');
-          }
-        } else {
-          this.pendingRequests = reqReceived;
-          this.setState({showLoader: false});
-        }
+      } else {
+        this.setState({pendingRequests: reqReceived, showLoader: false});
       }
     }
   }
@@ -84,6 +63,7 @@ class ViewReq extends React.PureComponent {
       <ChatListComponent
         name={item.name}
         username={item.username}
+        userObject={item}
         onPress={() => {}}
         showRequestButtons={true}
       />
@@ -94,7 +74,8 @@ class ViewReq extends React.PureComponent {
     return (
       <FlatList
         keyExtractor={(item, index) => index.toString()}
-        data={this.pendingRequests}
+        extraData={this.state.pendingRequests}
+        data={this.state.pendingRequests}
         renderItem={({item}) => {
           return this.renderUser(item);
         }}
@@ -107,8 +88,8 @@ class ViewReq extends React.PureComponent {
     return (
       <View style={styles.container}>
         {!showLoader &&
-        this.pendingRequests &&
-        this.pendingRequests.length === 0
+        this.state.pendingRequests &&
+        this.state.pendingRequests.length === 0
           ? this.renderUserNotFound()
           : this.renderFriendList()}
         {showLoader && this.renderLoader()}
@@ -130,16 +111,13 @@ ViewReq.propTypes = {};
 const mapStateToProps = state => {
   return {
     token: state.Login.token,
-    ...state.Friends,
+    reqReceived: state.Friends.reqReceived,
+    attemptingReqReceivedSearch: state.Friends.attemptingReqReceivedSearch,
   };
 };
 
 function mapDispatchToProps(dispatch) {
-  return {
-    getPendingRequests: token => {
-      return dispatch(getReqReceived(token));
-    },
-  };
+  return {};
 }
 
 export default connect(

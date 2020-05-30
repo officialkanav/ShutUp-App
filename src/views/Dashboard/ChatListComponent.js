@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {View, StyleSheet, Dimensions, TouchableOpacity} from 'react-native';
@@ -55,7 +56,7 @@ class ChatListComponent extends React.PureComponent {
     );
   };
   renderRequestButtons = () => {
-    const {acceptRequest, rejectRequest, token, username} = this.props;
+    const {acceptReq, rejectReq, token, userObject} = this.props;
     return (
       <View
         style={{
@@ -66,11 +67,11 @@ class ChatListComponent extends React.PureComponent {
           alignItems: 'center',
         }}>
         {this.reqButtonHelper('+', () => {
-          acceptRequest(token, username);
+          acceptReq(token, userObject);
         })}
         <View style={{marginLeft: 15}}>
           {this.reqButtonHelper('-', () => {
-            rejectRequest(token, username);
+            rejectReq(token, userObject);
           })}
         </View>
       </View>
@@ -161,11 +162,11 @@ const mapStateToProps = state => {
 
 function mapDispatchToProps(dispatch) {
   return {
-    acceptRequest: (token, username) => {
-      return dispatch(acceptReq(token, username));
+    acceptReq: (token, userObject) => {
+      return dispatch(acceptReq(token, userObject));
     },
-    rejectRequest: (token, username) => {
-      return dispatch(rejectReq(token, username));
+    rejectReq: (token, userObject) => {
+      return dispatch(rejectReq(token, userObject));
     },
   };
 }

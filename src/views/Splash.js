@@ -9,7 +9,7 @@ import {authenticateToken} from '../actions/loginAction';
 import {connect} from 'react-redux';
 import Spinner from 'react-native-spinkit';
 import Toast from 'react-native-simple-toast';
-import {getFriends, getReqReceived} from '../actions/friendsAction';
+import {getFriends, getReqReceived, getReqSent} from '../actions/friendsAction';
 import {getChats} from '../actions/chatAction';
 
 class Splash extends React.PureComponent {
@@ -20,8 +20,10 @@ class Splash extends React.PureComponent {
     };
     this.loginComplete = false;
     this.reqComplete = false;
+    this.reqSentComplete = false;
     this.friendsComplete = false;
     this.chatsComplete = false;
+    this.dataDownloadComplete = false;
   }
 
   componentDidMount() {
@@ -31,6 +33,7 @@ class Splash extends React.PureComponent {
       authenticateToken,
       getFriends,
       getReqReceived,
+      getReqSent,
       getChats,
     } = this.props;
     if (token === null) {
@@ -42,6 +45,7 @@ class Splash extends React.PureComponent {
       authenticateToken(token);
       getFriends(token);
       getReqReceived(token);
+      getReqSent(token);
       getChats(token);
     }
   }
@@ -51,12 +55,13 @@ class Splash extends React.PureComponent {
       name,
       navigation: {navigate},
       attemptingLogin,
-      attemptingSearch,
+      attemptingFriendsSearch,
       attemptingChatSearch,
-      attemptingReqSearch,
+      attemptingReqReceivedSearch,
+      attemptingReqSentSearch,
     } = this.props;
 
-    if (prevProps !== this.props) {
+    if (prevProps !== this.props && !this.dataDownloadComplete) {
       if (!attemptingLogin && prevProps.attemptingLogin) {
         if (!name) {
           this.setState({showLoader: false});
@@ -64,18 +69,28 @@ class Splash extends React.PureComponent {
         }
         this.loginComplete = true;
       }
-      if (!attemptingSearch && prevProps.attemptingSearch) {
+      if (!attemptingFriendsSearch && prevProps.attemptingFriendsSearch) {
         this.friendsComplete = true;
       }
-      if (!attemptingReqSearch && prevProps.attemptingReqSearch) {
+      if (
+        !attemptingReqReceivedSearch &&
+        prevProps.attemptingReqReceivedSearch
+      ) {
         this.reqComplete = true;
+      }
+      if (!attemptingReqSentSearch && prevProps.attemptingReqSentSearch) {
+        this.reqSentComplete = true;
       }
       if (!attemptingChatSearch && prevProps.attemptingChatSearch) {
         this.chatsComplete = true;
       }
-      console.log(attemptingLogin, attemptingReqSearch, attemptingSearch);
-      console.log(this.loginComplete, this.reqComplete, this.friendsComplete)
-      if (this.loginComplete && this.friendsComplete && this.reqComplete) {
+      if (
+        this.loginComplete &&
+        this.friendsComplete &&
+        this.reqComplete &&
+        this.reqSentComplete
+      ) {
+        this.dataDownloadComplete = true;
         Toast.show('ShutUp ' + name);
         this.setState({showLoader: false});
         return navigate('DashboardScreen');
@@ -142,9 +157,11 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => {
   return {
     ...state.Login,
-    attemptingSearch: state.Friends.attemptingSearch,
-    attemptingReqSearch: state.Friends.attemptingReqSearch,
+    attemptingFriendsSearch: state.Friends.attemptingFriendsSearch,
+    attemptingReqReceivedSearch: state.Friends.attemptingReqReceivedSearch,
+    attemptingReqSentSearch: state.Friends.attemptingReqSentSearch,
     attemptingChatSearch: state.Chats.attemptingChatSearch,
+    // ...state.Friends,
   };
 };
 
@@ -155,6 +172,7 @@ function mapDispatchToProps(dispatch) {
     },
     getFriends: token => dispatch(getFriends(token)),
     getReqReceived: token => dispatch(getReqReceived(token)),
+    getReqSent: token => dispatch(getReqSent(token)),
     getChats: token => dispatch(getChats(token)),
   };
 }

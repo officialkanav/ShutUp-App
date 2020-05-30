@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {
@@ -49,11 +50,11 @@ class SendReq extends React.PureComponent {
     this.setState({showLoader: false});
   };
 
-  searchUsername = () => {
-    const {searchUsername, token} = this.props;
+  searchUser = () => {
+    const {searchUser, token} = this.props;
     const username = this.state.username;
     this.setState({showLoader: true});
-    searchUsername(token, username, this.searchUsernameCallback);
+    searchUser(token, username, this.searchUsernameCallback);
   };
 
   renderTextInput = () => {
@@ -82,7 +83,7 @@ class SendReq extends React.PureComponent {
             radius={40}
             noAnimation={true}
             onPress={() => {
-              this.searchUsername();
+              this.searchUser();
               Keyboard.dismiss();
             }}
             textSize={9}
@@ -114,8 +115,8 @@ class SendReq extends React.PureComponent {
   };
 
   sendReqOnPress = () => {
-    const {token, sendRequest} = this.props;
-    sendRequest(token, this.searchedObject.username);
+    const {token, sendReq} = this.props;
+    sendReq(token, this.searchedObject.username);
   };
 
   renderUser = () => {
@@ -218,10 +219,10 @@ const mapStateToProps = state => {
 
 function mapDispatchToProps(dispatch) {
   return {
-    sendRequest: (token, username) => {
+    sendReq: (token, username) => {
       return dispatch(sendReq(token, username));
     },
-    searchUsername: (token, username, callback) => {
+    searchUser: (token, username, callback) => {
       return dispatch(searchUser(token, username, callback));
     },
   };
