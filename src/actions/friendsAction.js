@@ -48,6 +48,10 @@ export function setReqReceived(payLoad) {
   return {type: 'GET_REQ_RECEIVED', payLoad};
 }
 
+export function reqReceivedSingle(payLoad) {
+  return {type: 'REQ_RECIEVED_SINGLE', payLoad};
+}
+
 export function getReqReceived(token) {
   const auth = 'Bearer '.concat(token);
   return function(dispatch) {

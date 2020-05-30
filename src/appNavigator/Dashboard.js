@@ -1,5 +1,6 @@
 /* eslint-disable no-shadow */
 import React from 'react';
+import {BackHandler} from 'react-native';
 import colors from '../utils/colors';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import ChatList from '../views/Dashboard/ChatList';
@@ -8,19 +9,40 @@ import ViewReq from '../views/Dashboard/ViewReq';
 import io from 'socket.io-client';
 import constants from '../utils/constants';
 import {connect} from 'react-redux';
-import {addFriend} from '../actions/friendsAction';
+import {addFriend, reqReceivedSingle} from '../actions/friendsAction';
 
 const Tab = createBottomTabNavigator();
 
 class Dashboard extends React.PureComponent {
   constructor(props) {
     super(props);
-    const {addFriend} = props;
+    const {addFriend, reqReceivedSingle} = props;
+    this.handleBackButtonClick = this.handleBackButtonClick.bind(this);
     this.socket = io(constants.server, {});
     this.socket.emit('join', props.username);
     this.socket.on('request_accepted', friendObject => {
       addFriend(friendObject, false);
     });
+    this.socket.on('request_received', user => {
+      reqReceivedSingle(user);
+    });
+  }
+  componentWillMount() {
+    BackHandler.addEventListener(
+      'hardwareBackPress',
+      this.handleBackButtonClick,
+    );
+  }
+
+  componentWillUnmount() {
+    BackHandler.removeEventListener(
+      'hardwareBackPress',
+      this.handleBackButtonClick,
+    );
+  }
+
+  handleBackButtonClick() {
+    return true;
   }
 
   render() {
@@ -60,6 +82,7 @@ function mapDispatchToProps(dispatch) {
   return {
     addFriend: (user, isReqAccepted) =>
       dispatch(addFriend(user, isReqAccepted)),
+    reqReceivedSingle: payLoad => dispatch(reqReceivedSingle(payLoad)),
   };
 }
 

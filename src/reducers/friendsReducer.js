@@ -18,8 +18,8 @@ const addFriend = (state, payLoad, isReqAccepted = false) => {
     });
   } else {
     if (newState.reqSent) {
-      newState.reqSent = newState.reqSent.filter(_id => {
-        return !compareId(_id, payLoad._id);
+      newState.reqSent = newState.reqSent.filter(friend => {
+        return friend.username !== payLoad.username;
       });
     }
   }
@@ -37,6 +37,12 @@ const setReqReceived = (state, payLoad) => {
   const newState = {...state};
   newState.reqReceived = payLoad;
   newState.attemptingReqReceivedSearch = false;
+  return newState;
+};
+
+const setReqReceivedSingle = (state, payLoad) => {
+  const newState = {...state};
+  newState.reqReceived = [...newState.reqReceived, payLoad];
   return newState;
 };
 
@@ -79,6 +85,8 @@ export default function loginReducer(state = initialState, action) {
       return setFriends(state, action.payLoad);
     case 'GET_REQ_RECEIVED':
       return setReqReceived(state, action.payLoad);
+    case 'REQ_RECIEVED_SINGLE':
+      return setReqReceivedSingle(state, action.payLoad);
     case 'GET_REQ_SENT':
       return setReqSent(state, action.payLoad);
     case 'ATTEMPTING_SEARCH':

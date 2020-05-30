@@ -4,6 +4,10 @@ export function addChat(message) {
   return {type: 'ADD_CHAT', payLoad: message};
 }
 
+export function removeTopChat(username) {
+  return {type: 'REMOVE_TOP_CHAT', payLoad: username};
+}
+
 export function logout() {
   return {type: 'LOGOUT_USER'};
 }

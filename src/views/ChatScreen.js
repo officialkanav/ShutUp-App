@@ -22,9 +22,33 @@ class ChatScreen extends React.PureComponent {
     const {chatArray} = props;
     this.state = {
       chatArray: chatArray ? chatArray : [],
+      showOnlineSign: false,
       newChat: '',
     };
     this.socket = props.route.params.socket;
+  }
+
+  componentDidMount() {
+    const {
+      friend: {username},
+    } = this.props.route.params;
+    this.socket.emit('status', username, isOnline => {
+      if (isOnline) {
+        this.setState({showOnlineSign: true});
+      } else {
+        this.setState({showOnlineSign: false});
+      }
+    });
+    this.socket.on('user_joined', jointUser => {
+      if (username === jointUser && !this.state.showOnlineSign) {
+        this.setState({showOnlineSign: true});
+      }
+    });
+    this.socket.on('user_left', leftUser => {
+      if (username === leftUser && this.state.showOnlineSign) {
+        this.setState({showOnlineSign: false});
+      }
+    });
   }
 
   componentDidUpdate(prevProps) {
@@ -65,18 +89,32 @@ class ChatScreen extends React.PureComponent {
           }}
         />
         {/* image above */}
-        <GenericText
-          text={name}
-          color={colors.darkGray}
-          size={30}
-          style={{marginLeft: 10}}
-        />
+        <View style={{width: '70%'}}>
+          <GenericText
+            text={name}
+            color={colors.darkGray}
+            size={30}
+            style={{marginLeft: 10}}
+          />
+        </View>
         <GenericText
           text={`@${username}`}
           color={colors.darkGray}
           size={10}
           style={{position: 'absolute', right: 5, bottom: 5}}
         />
+        {this.state.showOnlineSign && (
+          <View
+            style={{
+              backgroundColor: colors.green,
+              height: 15,
+              width: 15,
+              borderRadius: 15,
+              position: 'absolute',
+              right: 20,
+            }}
+          />
+        )}
       </View>
     );
   };
@@ -178,8 +216,6 @@ class ChatScreen extends React.PureComponent {
 
   render() {
     const noChats = this.state.chatArray.length === 0;
-    // const{chatArray} = this.props;
-    // alert(JSON.stringify(chatArray))
     return (
       <View style={styles.container}>
         {this.renderHeader()}
@@ -197,7 +233,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.blue,
   },
   headerContainer: {
-    height: 60,
+    paddingVertical: 14,
     width: SCREEN_WIDTH - 6,
     borderRadius: 5,
     flexDirection: 'row',

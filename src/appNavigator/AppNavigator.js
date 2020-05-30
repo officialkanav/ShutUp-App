@@ -41,8 +41,12 @@ export default class AppNavigator extends React.PureComponent {
             component={Dashboard}
             options={{
               headerTitle: 'ShutUp',
+              headerTitleStyle: {alignSelf: 'center'},
               headerTintColor: colors.darkGray,
-              headerStyle: {backgroundColor: colors.lightGray},
+              headerStyle: {
+                backgroundColor: colors.lightGray,
+                shadowOffset: {height: 0, width: 0},
+              },
               headerLeft: null,
             }}
           />
@@ -51,6 +55,7 @@ export default class AppNavigator extends React.PureComponent {
             component={ChatScreen}
             options={{
               headerTitle: 'ShutUp',
+              headerTitleStyle: {alignSelf: 'center'},
               headerTintColor: colors.darkGray,
               headerStyle: {backgroundColor: colors.lightGray},
               headerBackTitle: null,

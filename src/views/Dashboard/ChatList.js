@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable react/no-did-update-set-state */
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
@@ -13,7 +14,7 @@ import colors from '../../utils/colors';
 import ChatListComponent from './ChatListComponent';
 import GenericText from '../../utils/GenericText';
 import {refresh, logout} from '../../actions/friendsAction';
-import {addChat} from '../../actions/chatAction';
+import {addChat, removeTopChat} from '../../actions/chatAction';
 import Toast from 'react-native-simple-toast';
 import {connect} from 'react-redux';
 import Spinner from 'react-native-spinkit';
@@ -33,13 +34,14 @@ class ChatList extends React.PureComponent {
   }
 
   componentDidMount() {
-    const {addChatToReducer} = this.props;
+    const {addChatToReducer, removeTopChat} = this.props;
     AppState.addEventListener('change', this.handleAppStateChange);
     this.socket.on('get_message', messageObject => {
       addChatToReducer({username: messageObject.sender, messageObject});
     });
-    this.socket.on('notOnlineError', () => {
-      Toast.show('The user is not online yet', Toast.SHORT);
+    this.socket.on('notOnlineError', username => {
+      removeTopChat(username);
+      Toast.show('User is offline, so Shut Up!', Toast.SHORT);
     });
   }
 
@@ -208,6 +210,7 @@ function mapDispatchToProps(dispatch) {
     addChatToReducer: message => {
       return dispatch(addChat(message));
     },
+    removeTopChat: username => dispatch(removeTopChat(username)),
   };
 }
 

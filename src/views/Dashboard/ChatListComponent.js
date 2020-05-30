@@ -14,19 +14,32 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 class ChatListComponent extends React.PureComponent {
   constructor(props) {
     super(props);
+    const {username, showRequestButtons} = this.props;
     this.state = {
-      showOnlineSign: true,
+      showOnlineSign: false,
     };
     this.socket = props.socket;
-  }
-
-  componentDidMount() {
-    const {username, showRequestButtons} = this.props;
     if (!showRequestButtons) {
       this.socket.emit('status', username, isOnline => {
         if (isOnline) {
           this.setState({showOnlineSign: true});
         } else {
+          this.setState({showOnlineSign: false});
+        }
+      });
+    }
+  }
+
+  componentDidMount() {
+    const {username, showRequestButtons} = this.props;
+    if (!showRequestButtons) {
+      this.socket.on('user_joined', jointUser => {
+        if (username === jointUser && !this.state.showOnlineSign) {
+          this.setState({showOnlineSign: true});
+        }
+      });
+      this.socket.on('user_left', leftUser => {
+        if (username === leftUser && this.state.showOnlineSign) {
           this.setState({showOnlineSign: false});
         }
       });

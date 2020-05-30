@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     height: 50,
     width: TextInputWidth,
     backgroundColor: colors.lightGray,
-    fontSize: 30,
+    fontSize: 25,
     borderRadius: 5,
   },
 });

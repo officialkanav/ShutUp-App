@@ -19,6 +19,15 @@ const addChat = (state, payLoad) => {
   return newState;
 };
 
+const removeTopChat = (state, username) => {
+  const newState = {...state};
+  if (newState[username]) {
+    newState[username].shift();
+    newState[username] = [...newState[username]];
+  }
+  return newState;
+};
+
 const logout = state => {
   return {attemptingChatSearch: false};
 };
@@ -35,6 +44,8 @@ export default function loginReducer(state = initialState, action) {
       return {...state, attemptingChatSearch: true};
     case 'CHAT_SEARCH_COMPLETE':
       return {...state, attemptingChatSearch: false};
+    case 'REMOVE_TOP_CHAT':
+      return removeTopChat(state, action.payLoad);
   }
   return state;
 }

@@ -99,7 +99,10 @@ class SendReq extends React.PureComponent {
     const searchedId = this.searchedObject._id;
     if (friends) {
       for (let i = 0; i < friends.length; i++) {
-        if (compareId(friends[i], searchedId)) {
+        if (
+          compareId(friends[i], searchedId) ||
+          compareId(friends[i]._id, searchedId)
+        ) {
           return true;
         }
       }
