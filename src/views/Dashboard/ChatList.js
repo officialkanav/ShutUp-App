@@ -29,7 +29,6 @@ class ChatList extends React.PureComponent {
       showLoader: false,
       friends: friends ? friends : [],
     };
-    // this.friends = friends ? friends : [];
     this.socket = this.props.socket;
   }
 

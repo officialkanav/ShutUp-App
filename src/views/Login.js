@@ -1,3 +1,5 @@
+/* eslint-disable react/no-did-update-set-state */
+/* eslint-disable no-shadow */
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {View, StyleSheet, TextInput, Dimensions} from 'react-native';
@@ -8,6 +10,8 @@ import CircleLogo from './CircleLogo';
 import {connect} from 'react-redux';
 import {loginAsync, SignUpAsync} from '../actions/loginAction';
 import Toast from 'react-native-simple-toast';
+import Spinner from 'react-native-spinkit';
+import {getFriends, getReqReceived, getReqSent} from '../actions/friendsAction';
 
 const TextInputWidth = Dimensions.get('window').width - 40;
 
@@ -18,15 +22,90 @@ class Login extends React.PureComponent {
       usernameText: '',
       passwordText: '',
       nameText: '',
+      showLoader: false,
     };
+    this.loginComplete = false;
+    this.reqComplete = false;
+    this.reqSentComplete = false;
+    this.friendsComplete = false;
+    this.dataDownloadComplete = false;
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.username !== null) {
-      Toast.show('Logging in ' + this.props.username, Toast.SHORT);
-      this.props.navigation.navigate('DashboardScreen');
+    const {
+      name,
+      navigation: {navigate},
+      attemptingLogin,
+      attemptingFriendsSearch,
+      attemptingReqReceivedSearch,
+      attemptingReqSentSearch,
+    } = this.props;
+
+    if (prevProps !== this.props && !this.dataDownloadComplete) {
+      if (!attemptingLogin && prevProps.attemptingLogin) {
+        if (!name) {
+          this.setState({showLoader: false});
+          return navigate('StartScreen');
+        }
+        this.getData();
+        this.loginComplete = true;
+      }
+      if (!attemptingFriendsSearch && prevProps.attemptingFriendsSearch) {
+        this.friendsComplete = true;
+      }
+      if (
+        !attemptingReqReceivedSearch &&
+        prevProps.attemptingReqReceivedSearch
+      ) {
+        this.reqComplete = true;
+      }
+      if (!attemptingReqSentSearch && prevProps.attemptingReqSentSearch) {
+        this.reqSentComplete = true;
+      }
+      if (
+        this.loginComplete &&
+        this.friendsComplete &&
+        this.reqComplete &&
+        this.reqSentComplete
+      ) {
+        this.dataDownloadComplete = true;
+        Toast.show('Logging in ' + this.props.username, Toast.SHORT);
+        this.setState({showLoader: false});
+        return navigate('DashboardScreen');
+      }
     }
   }
+
+  getData = () => {
+    const {
+      token,
+      navigation: {navigate},
+      getFriends,
+      getReqReceived,
+      getReqSent,
+    } = this.props;
+    if (token === null) {
+      navigate('StartScreen');
+    } else {
+      this.setState({showLoader: true});
+      getFriends(token);
+      getReqReceived(token);
+      getReqSent(token);
+    }
+  };
+
+  renderLoader = () => {
+    return (
+      <View style={{position: 'absolute', bottom: 10}}>
+        <Spinner
+          isVisible={true}
+          size={70}
+          type={'ThreeBounce'}
+          color={colors.lightGray}
+        />
+      </View>
+    );
+  };
 
   logoOnPress = () => {
     const {type} = this.props.route.params;
@@ -131,6 +210,7 @@ class Login extends React.PureComponent {
 
   render() {
     const {type} = this.props.route.params;
+    const {showLoader} = this.state;
     return (
       <View style={styles.container}>
         {this.renderWelcomeText()}
@@ -138,6 +218,7 @@ class Login extends React.PureComponent {
         {this.renderUsernameTextField()}
         {this.renderPasswordTextField()}
         {this.renderLogo()}
+        {showLoader && this.renderLoader()}
       </View>
     );
   }
@@ -170,6 +251,9 @@ Login.propTypes = {
 const mapStateToProps = state => {
   return {
     ...state.Login,
+    attemptingFriendsSearch: state.Friends.attemptingFriendsSearch,
+    attemptingReqReceivedSearch: state.Friends.attemptingReqReceivedSearch,
+    attemptingReqSentSearch: state.Friends.attemptingReqSentSearch,
   };
 };
 
@@ -181,6 +265,9 @@ function mapDispatchToProps(dispatch) {
     sendSignUpReq: (name, username, password) => {
       return dispatch(SignUpAsync(name, username, password));
     },
+    getFriends: token => dispatch(getFriends(token)),
+    getReqReceived: token => dispatch(getReqReceived(token)),
+    getReqSent: token => dispatch(getReqSent(token)),
   };
 }
 

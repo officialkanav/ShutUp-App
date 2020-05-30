@@ -1,3 +1,4 @@
+/* eslint-disable react/no-did-mount-set-state */
 /* eslint-disable no-shadow */
 /* eslint-disable react/no-did-update-set-state */
 /* eslint-disable react-native/no-inline-styles */
@@ -5,12 +6,11 @@ import React from 'react';
 import {StyleSheet, View, Text} from 'react-native';
 import colors from '../utils/colors';
 import CircleLogo from './CircleLogo';
-import {authenticateToken} from '../actions/loginAction';
 import {connect} from 'react-redux';
 import Spinner from 'react-native-spinkit';
 import Toast from 'react-native-simple-toast';
 import {getFriends, getReqReceived, getReqSent} from '../actions/friendsAction';
-import {getChats} from '../actions/chatAction';
+import {authenticateToken} from '../actions/loginAction';
 
 class Splash extends React.PureComponent {
   constructor(props) {
@@ -18,11 +18,11 @@ class Splash extends React.PureComponent {
     this.state = {
       showLoader: false,
     };
+    this.gettingData = false;
     this.loginComplete = false;
     this.reqComplete = false;
     this.reqSentComplete = false;
     this.friendsComplete = false;
-    this.chatsComplete = false;
     this.dataDownloadComplete = false;
   }
 
@@ -34,19 +34,16 @@ class Splash extends React.PureComponent {
       getFriends,
       getReqReceived,
       getReqSent,
-      getChats,
     } = this.props;
     if (token === null) {
       navigate('StartScreen');
     } else {
-      // eslint-disable-next-line react/no-did-mount-set-state
+      this.gettingData = true;
       this.setState({showLoader: true});
-      this.loadingLogin = true;
       authenticateToken(token);
       getFriends(token);
       getReqReceived(token);
       getReqSent(token);
-      getChats(token);
     }
   }
 
@@ -56,12 +53,15 @@ class Splash extends React.PureComponent {
       navigation: {navigate},
       attemptingLogin,
       attemptingFriendsSearch,
-      attemptingChatSearch,
       attemptingReqReceivedSearch,
       attemptingReqSentSearch,
     } = this.props;
 
-    if (prevProps !== this.props && !this.dataDownloadComplete) {
+    if (
+      prevProps !== this.props &&
+      !this.dataDownloadComplete &&
+      this.gettingData
+    ) {
       if (!attemptingLogin && prevProps.attemptingLogin) {
         if (!name) {
           this.setState({showLoader: false});
@@ -81,9 +81,6 @@ class Splash extends React.PureComponent {
       if (!attemptingReqSentSearch && prevProps.attemptingReqSentSearch) {
         this.reqSentComplete = true;
       }
-      if (!attemptingChatSearch && prevProps.attemptingChatSearch) {
-        this.chatsComplete = true;
-      }
       if (
         this.loginComplete &&
         this.friendsComplete &&
@@ -91,6 +88,7 @@ class Splash extends React.PureComponent {
         this.reqSentComplete
       ) {
         this.dataDownloadComplete = true;
+        this.gettingData = false;
         Toast.show('ShutUp ' + name);
         this.setState({showLoader: false});
         return navigate('DashboardScreen');
@@ -160,8 +158,6 @@ const mapStateToProps = state => {
     attemptingFriendsSearch: state.Friends.attemptingFriendsSearch,
     attemptingReqReceivedSearch: state.Friends.attemptingReqReceivedSearch,
     attemptingReqSentSearch: state.Friends.attemptingReqSentSearch,
-    attemptingChatSearch: state.Chats.attemptingChatSearch,
-    // ...state.Friends,
   };
 };
 
@@ -173,7 +169,7 @@ function mapDispatchToProps(dispatch) {
     getFriends: token => dispatch(getFriends(token)),
     getReqReceived: token => dispatch(getReqReceived(token)),
     getReqSent: token => dispatch(getReqSent(token)),
-    getChats: token => dispatch(getChats(token)),
+    // getChats: token => dispatch(getChats(token)),
   };
 }
 
