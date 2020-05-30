@@ -28,6 +28,7 @@ class SendReq extends React.PureComponent {
       showLoader: false,
     };
     this.searchedObject = null;
+    this.socket = props.socket;
   }
 
   renderLoader = () => {
@@ -114,6 +115,7 @@ class SendReq extends React.PureComponent {
     const {username, name} = this.searchedObject;
     this.props.navigation.navigate('ChattingScreen', {
       friend: {username, name},
+      socket: this.socket,
     });
   };
 

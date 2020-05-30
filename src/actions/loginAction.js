@@ -53,6 +53,7 @@ export function loginAsync(username, password) {
 
 export function SignUpAsync(name, username, password) {
   return function(dispatch) {
+    dispatch({type: 'ATTEMPTING_LOGIN'});
     return fetch(constants.server.concat('/users/createUser'), {
       method: 'POST',
       headers: {

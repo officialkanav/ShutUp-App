@@ -29,7 +29,7 @@ class ChatList extends React.PureComponent {
       showLoader: false,
       friends: friends ? friends : [],
     };
-    this.socket = this.props.socket;
+    this.socket = props.socket;
   }
 
   componentDidMount() {

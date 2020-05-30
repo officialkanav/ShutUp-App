@@ -86,8 +86,8 @@ class Login extends React.PureComponent {
     } = this.props;
     if (token === null) {
       navigate('StartScreen');
+      this.setState({showLoader: false});
     } else {
-      this.setState({showLoader: true});
       getFriends(token);
       getReqReceived(token);
       getReqSent(token);
@@ -129,6 +129,7 @@ class Login extends React.PureComponent {
       }
       sendSignUpReq(name, username, password);
     }
+    this.setState({showLoader: true});
   };
 
   renderLogo = () => {
@@ -162,7 +163,7 @@ class Login extends React.PureComponent {
       <TextInput
         style={{
           ...styles.textInput,
-          marginTop: 100,
+          marginTop: 50,
         }}
         onChangeText={value => {
           this.setState({nameText: value});
@@ -175,7 +176,7 @@ class Login extends React.PureComponent {
 
   renderUsernameTextField = () => {
     const {type} = this.props.route.params;
-    const marginTop = type === 'Login' ? 100 : 30;
+    const marginTop = type === 'Login' ? 70 : 30;
     return (
       <TextInput
         style={{
