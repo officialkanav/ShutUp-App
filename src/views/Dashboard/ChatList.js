@@ -33,10 +33,14 @@ class ChatList extends React.PureComponent {
   }
 
   componentDidMount() {
-    const {addChatToReducer, removeTopChat} = this.props;
+    const {addChat, removeTopChat} = this.props;
     AppState.addEventListener('change', this.handleAppStateChange);
     this.socket.on('get_message', messageObject => {
-      addChatToReducer({username: messageObject.sender, messageObject});
+      const {onFocus} = this.props;
+      addChat({username: messageObject.sender, messageObject});
+      if (onFocus !== messageObject.sender) {
+        Toast.show(messageObject.sender + ' sent a message', Toast.SHORT);
+      }
     });
     this.socket.on('notOnlineError', username => {
       removeTopChat(username);
@@ -83,9 +87,9 @@ class ChatList extends React.PureComponent {
   };
 
   renderLogoutButton = () => {
-    const {logoutUser} = this.props;
+    const {logout} = this.props;
     return (
-      <TouchableOpacity onPress={logoutUser}>
+      <TouchableOpacity onPress={logout}>
         <GenericText text={'Logout'} size={15} />
       </TouchableOpacity>
     );
@@ -199,14 +203,15 @@ const mapStateToProps = state => {
     attemptingFriendsSearch: state.Friends.attemptingFriendsSearch,
     username: state.Login.username,
     token: state.Login.token,
+    onFocus: state.Chats.onFocus,
   };
 };
 
 function mapDispatchToProps(dispatch) {
   return {
-    logoutUser: () => dispatch(logout()),
-    refreshApp: () => dispatch(refresh()),
-    addChatToReducer: message => {
+    logout: () => dispatch(logout()),
+    refresh: () => dispatch(refresh()),
+    addChat: message => {
       return dispatch(addChat(message));
     },
     removeTopChat: username => dispatch(removeTopChat(username)),

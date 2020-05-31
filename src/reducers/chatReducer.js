@@ -1,4 +1,4 @@
-export const initialState = {attemptingChatSearch: false};
+export const initialState = {attemptingChatSearch: false, onFocus: null};
 
 const downloadChat = (state, payLoad) => {
   const newState = payLoad;
@@ -46,6 +46,10 @@ export default function loginReducer(state = initialState, action) {
       return {...state, attemptingChatSearch: false};
     case 'REMOVE_TOP_CHAT':
       return removeTopChat(state, action.payLoad);
+    case 'SET_FOCUS':
+      return {...state, onFocus: action.payLoad};
+    case 'REMOVE_FOCUS':
+      return {...state, onFocus: null};
   }
   return state;
 }

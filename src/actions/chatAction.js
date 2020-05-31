@@ -8,6 +8,14 @@ export function removeTopChat(username) {
   return {type: 'REMOVE_TOP_CHAT', payLoad: username};
 }
 
+export function setFocus(username) {
+  return {type: 'SET_FOCUS', payLoad: username};
+}
+
+export function removeFocus() {
+  return {type: 'REMOVE_FOCUS'};
+}
+
 export function logout() {
   return {type: 'LOGOUT_USER'};
 }

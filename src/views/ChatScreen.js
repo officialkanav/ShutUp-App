@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {
@@ -12,20 +13,22 @@ import colors from '../utils/colors';
 import GenericText from '../utils/GenericText';
 import CircleLogo from '../views/CircleLogo';
 import {connect} from 'react-redux';
-import {addChat} from '../actions/chatAction';
+import {addChat, setFocus, removeFocus} from '../actions/chatAction';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 class ChatScreen extends React.PureComponent {
   constructor(props) {
     super(props);
-    const {chatArray} = props;
+    const {chatArray, navigation} = props;
     this.state = {
       chatArray: chatArray ? chatArray : [],
       showOnlineSign: false,
       newChat: '',
     };
     this.socket = props.route.params.socket;
+    navigation.addListener('focus', this.onFocus);
+    navigation.addListener('blur', this.onBlur);
   }
 
   componentDidMount() {
@@ -58,6 +61,23 @@ class ChatScreen extends React.PureComponent {
       this.setState({chatArray});
     }
   }
+
+  componentWillUnmount() {
+    this.onBlur();
+  }
+
+  onFocus = () => {
+    const {setFocus} = this.props;
+    const {
+      friend: {username},
+    } = this.props.route.params;
+    setFocus(username);
+  };
+
+  onBlur = () => {
+    const {removeFocus} = this.props;
+    removeFocus();
+  };
 
   renderNoChatsFound = () => {
     return (
@@ -143,7 +163,7 @@ class ChatScreen extends React.PureComponent {
 
   chatSendOnPress = () => {
     const newChat = this.state.newChat;
-    const {username, addChatToReducer} = this.props;
+    const {username, addChat} = this.props;
     const {friend} = this.props.route.params;
     if (newChat !== '') {
       const messageObject = {
@@ -158,7 +178,7 @@ class ChatScreen extends React.PureComponent {
         ],
         newChat: '',
       });
-      addChatToReducer({
+      addChat({
         username: messageObject.toUser,
         messageObject,
       });
@@ -270,9 +290,11 @@ const mapStateToProps = (state, props) => {
 
 function mapDispatchToProps(dispatch) {
   return {
-    addChatToReducer: message => {
+    addChat: message => {
       return dispatch(addChat(message));
     },
+    setFocus: username => dispatch(setFocus(username)),
+    removeFocus: () => dispatch(removeFocus()),
   };
 }
 
