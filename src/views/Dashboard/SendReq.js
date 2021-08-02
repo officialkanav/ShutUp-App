@@ -136,18 +136,9 @@ class SendReq extends React.PureComponent {
           alignItems: 'center',
           backgroundColor: colors.darkGray,
           width: 200,
-          marginTop: 15,
+          marginTop: 50,
           borderRadius: 5,
         }}>
-        <View
-          style={{
-            height: 80,
-            width: 80,
-            borderRadius: 80,
-            marginTop: 5,
-            backgroundColor: colors.lightOrange,
-          }}
-        />
         <GenericText
           text={this.searchedObject.name}
           color={colors.lightGray}
@@ -199,16 +190,17 @@ class SendReq extends React.PureComponent {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.blue,
+    backgroundColor: colors.white,
     alignItems: 'center',
     paddingTop: 50,
   },
   textInput: {
     height: 40,
     width: SCREEN_WIDTH - 60,
-    backgroundColor: colors.lightGray,
+    backgroundColor: colors.gray,
     fontSize: 17,
     borderRadius: 5,
+    color: colors.black,
   },
 });
 

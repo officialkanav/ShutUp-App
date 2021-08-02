@@ -85,7 +85,7 @@ class ChatScreen extends React.PureComponent {
         <GenericText
           text={'Start the chat by sending a message!'}
           size={20}
-          color={colors.lightGray}
+          color={colors.black}
           style={{marginTop: 80}}
         />
       </View>
@@ -250,7 +250,7 @@ class ChatScreen extends React.PureComponent {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.blue,
+    backgroundColor: colors.white,
   },
   headerContainer: {
     paddingVertical: 14,

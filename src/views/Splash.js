@@ -9,7 +9,6 @@ import CircleLogo from './CircleLogo';
 import {connect} from 'react-redux';
 import Spinner from 'react-native-spinkit';
 import Toast from 'react-native-simple-toast';
-import {getFriends, getReqReceived, getReqSent} from '../actions/friendsAction';
 import {authenticateToken} from '../actions/loginAction';
 
 class Splash extends React.PureComponent {
@@ -19,11 +18,6 @@ class Splash extends React.PureComponent {
       showLoader: false,
     };
     this.gettingData = false;
-    this.loginComplete = false;
-    this.reqComplete = false;
-    this.reqSentComplete = false;
-    this.friendsComplete = false;
-    this.dataDownloadComplete = false;
   }
 
   componentDidMount() {
@@ -31,9 +25,6 @@ class Splash extends React.PureComponent {
       token,
       navigation: {navigate},
       authenticateToken,
-      getFriends,
-      getReqReceived,
-      getReqSent,
     } = this.props;
     if (token === null) {
       navigate('StartScreen');
@@ -41,9 +32,6 @@ class Splash extends React.PureComponent {
       this.gettingData = true;
       this.setState({showLoader: true});
       authenticateToken(token);
-      getFriends(token);
-      getReqReceived(token);
-      getReqSent(token);
     }
   }
 
@@ -52,46 +40,19 @@ class Splash extends React.PureComponent {
       name,
       navigation: {navigate},
       attemptingLogin,
-      attemptingFriendsSearch,
-      attemptingReqReceivedSearch,
-      attemptingReqSentSearch,
     } = this.props;
 
-    if (
-      prevProps !== this.props &&
-      !this.dataDownloadComplete &&
-      this.gettingData
-    ) {
+    if (prevProps !== this.props && this.gettingData) {
       if (!attemptingLogin && prevProps.attemptingLogin) {
         if (!name) {
           this.setState({showLoader: false});
           return navigate('StartScreen');
+        } else {
+          this.gettingData = false;
+          Toast.show('ShutUp ' + name);
+          this.setState({showLoader: false});
+          return navigate('DashboardScreen');
         }
-        this.loginComplete = true;
-      }
-      if (!attemptingFriendsSearch && prevProps.attemptingFriendsSearch) {
-        this.friendsComplete = true;
-      }
-      if (
-        !attemptingReqReceivedSearch &&
-        prevProps.attemptingReqReceivedSearch
-      ) {
-        this.reqComplete = true;
-      }
-      if (!attemptingReqSentSearch && prevProps.attemptingReqSentSearch) {
-        this.reqSentComplete = true;
-      }
-      if (
-        this.loginComplete &&
-        this.friendsComplete &&
-        this.reqComplete &&
-        this.reqSentComplete
-      ) {
-        this.dataDownloadComplete = true;
-        this.gettingData = false;
-        Toast.show('ShutUp ' + name);
-        this.setState({showLoader: false});
-        return navigate('DashboardScreen');
       }
     }
   }
@@ -146,7 +107,7 @@ class Splash extends React.PureComponent {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.blue,
+    backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -155,9 +116,6 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => {
   return {
     ...state.Login,
-    attemptingFriendsSearch: state.Friends.attemptingFriendsSearch,
-    attemptingReqReceivedSearch: state.Friends.attemptingReqReceivedSearch,
-    attemptingReqSentSearch: state.Friends.attemptingReqSentSearch,
   };
 };
 
@@ -166,10 +124,6 @@ function mapDispatchToProps(dispatch) {
     authenticateToken: token => {
       return dispatch(authenticateToken(token));
     },
-    getFriends: token => dispatch(getFriends(token)),
-    getReqReceived: token => dispatch(getReqReceived(token)),
-    getReqSent: token => dispatch(getReqSent(token)),
-    // getChats: token => dispatch(getChats(token)),
   };
 }
 

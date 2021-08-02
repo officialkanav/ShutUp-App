@@ -11,7 +11,7 @@ export default class GenericText extends React.PureComponent {
   render() {
     let {text, size, color, style} = this.props;
     const fontSize = size || 13;
-    color = color || colors.darkGray;
+    color = color || colors.black;
     return (
       <Text
         style={{

@@ -54,9 +54,9 @@ class Dashboard extends React.PureComponent {
             fontSize: 18,
             fontWeight: '500',
           },
-          style: {backgroundColor: colors.blue, borderTopWidth: 0, height: 70},
-          activeTintColor: colors.lightGray,
-          inactiveTintColor: colors.darkGray,
+          style: {backgroundColor: colors.white, borderTopWidth: 0, height: 70},
+          activeTintColor: colors.black,
+          inactiveTintColor: colors.gray,
         }}>
         <Tab.Screen name="Chat">
           {props => <ChatList {...props} socket={this.socket} />}

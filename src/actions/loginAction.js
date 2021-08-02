@@ -1,5 +1,7 @@
 import constants from '../utils/constants';
 import Toast from 'react-native-simple-toast';
+import {setChat} from '../actions/chatAction';
+import {setReqReceived, setFriends, setReqSent} from '../actions/friendsAction';
 
 export function login(payLoad) {
   return {
@@ -20,8 +22,7 @@ export function loginAsync(username, password) {
     return fetch(constants.server.concat('/users/login'), {
       method: 'POST',
       headers: {
-        // eslint-disable-next-line prettier/prettier
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -42,9 +43,15 @@ export function loginAsync(username, password) {
           reqReceived: json.user.reqReceived,
           token: json.token,
         };
+        // dispatch(setChat(json.chats));
+        dispatch(setFriends(json.user.friends));
+        dispatch(setReqReceived(json.user.reqReceived));
+        dispatch(setReqSent(json.user.reqSent));
+
         return dispatch(login(payLoad));
       })
       .catch(err => {
+        // alert(err);
         Toast.show(JSON.stringify(err.message), Toast.SHORT);
         return dispatch(logout());
       });
@@ -57,8 +64,7 @@ export function SignUpAsync(name, username, password) {
     return fetch(constants.server.concat('/users/createUser'), {
       method: 'POST',
       headers: {
-        // eslint-disable-next-line prettier/prettier
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -96,11 +102,9 @@ export function authenticateToken(token) {
     return fetch(constants.server.concat('/users/me'), {
       method: 'GET',
       headers: {
-        // eslint-disable-next-line prettier/prettier
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json',
-        // eslint-disable-next-line prettier/prettier
-        'Authorization': auth,
+        Authorization: auth,
       },
     })
       .then(response => response.json())
@@ -109,13 +113,17 @@ export function authenticateToken(token) {
           throw new Error(json.err);
         }
         const payLoad = {
-          username: json.username,
-          name: json.name,
-          friends: json.friends,
-          reqSent: json.reqSent,
-          reqReceived: json.reqReceived,
+          username: json.user.username,
+          name: json.user.name,
+          friends: json.user.friends,
+          reqSent: json.user.reqSent,
+          reqReceived: json.user.reqReceived,
           token: token,
         };
+        dispatch(setFriends(json.user.friends));
+        dispatch(setReqReceived(json.user.pendingRequests));
+        dispatch(setReqSent(json.user.sentRequests));
+
         return dispatch(login(payLoad));
       })
       .catch(err => {

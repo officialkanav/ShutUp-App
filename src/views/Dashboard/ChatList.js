@@ -102,7 +102,7 @@ class ChatList extends React.PureComponent {
           width: '100%',
           height: 50,
           justifyContent: 'center',
-          backgroundColor: colors.lightGray,
+          backgroundColor: colors.white,
         }}>
         <View style={{flexDirection: 'row', marginTop: 5, alignSelf: 'center'}}>
           {this.renderLogoutButton()}
@@ -117,13 +117,13 @@ class ChatList extends React.PureComponent {
         <GenericText
           text={'No friends found!'}
           size={20}
-          color={colors.lightGray}
+          color={colors.black}
           style={{marginTop: 80}}
         />
         <GenericText
           text={'Add friends and refresh'}
           size={20}
-          color={colors.lightGray}
+          color={colors.black}
           style={{marginTop: 5}}
         />
       </View>
@@ -180,7 +180,7 @@ class ChatList extends React.PureComponent {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.blue,
+    backgroundColor: colors.white,
     alignItems: 'center',
   },
   chatCardContainer: {

@@ -68,7 +68,7 @@ export default class Startpage extends React.PureComponent {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.blue,
+    backgroundColor: colors.white,
     alignItems: 'center',
   },
 

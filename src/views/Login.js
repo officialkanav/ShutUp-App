@@ -1,5 +1,4 @@
 /* eslint-disable react/no-did-update-set-state */
-/* eslint-disable no-shadow */
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {View, StyleSheet, TextInput, Dimensions} from 'react-native';
@@ -11,7 +10,6 @@ import {connect} from 'react-redux';
 import {loginAsync, SignUpAsync} from '../actions/loginAction';
 import Toast from 'react-native-simple-toast';
 import Spinner from 'react-native-spinkit';
-import {getFriends, getReqReceived, getReqSent} from '../actions/friendsAction';
 
 const TextInputWidth = Dimensions.get('window').width - 40;
 
@@ -25,10 +23,6 @@ class Login extends React.PureComponent {
       showLoader: false,
     };
     this.loginComplete = false;
-    this.reqComplete = false;
-    this.reqSentComplete = false;
-    this.friendsComplete = false;
-    this.dataDownloadComplete = false;
   }
 
   componentDidUpdate(prevProps) {
@@ -36,63 +30,21 @@ class Login extends React.PureComponent {
       name,
       navigation: {navigate},
       attemptingLogin,
-      attemptingFriendsSearch,
-      attemptingReqReceivedSearch,
-      attemptingReqSentSearch,
     } = this.props;
 
-    if (prevProps !== this.props && !this.dataDownloadComplete) {
+    if (prevProps !== this.props) {
       if (!attemptingLogin && prevProps.attemptingLogin) {
         if (!name) {
           this.setState({showLoader: false});
           return navigate('StartScreen');
+        } else {
+          Toast.show('Logging in ' + this.props.username, Toast.SHORT);
+          this.setState({showLoader: false});
+          return navigate('DashboardScreen');
         }
-        this.getData();
-        this.loginComplete = true;
-      }
-      if (!attemptingFriendsSearch && prevProps.attemptingFriendsSearch) {
-        this.friendsComplete = true;
-      }
-      if (
-        !attemptingReqReceivedSearch &&
-        prevProps.attemptingReqReceivedSearch
-      ) {
-        this.reqComplete = true;
-      }
-      if (!attemptingReqSentSearch && prevProps.attemptingReqSentSearch) {
-        this.reqSentComplete = true;
-      }
-      if (
-        this.loginComplete &&
-        this.friendsComplete &&
-        this.reqComplete &&
-        this.reqSentComplete
-      ) {
-        this.dataDownloadComplete = true;
-        Toast.show('Logging in ' + this.props.username, Toast.SHORT);
-        this.setState({showLoader: false});
-        return navigate('DashboardScreen');
       }
     }
   }
-
-  getData = () => {
-    const {
-      token,
-      navigation: {navigate},
-      getFriends,
-      getReqReceived,
-      getReqSent,
-    } = this.props;
-    if (token === null) {
-      navigate('StartScreen');
-      this.setState({showLoader: false});
-    } else {
-      getFriends(token);
-      getReqReceived(token);
-      getReqSent(token);
-    }
-  };
 
   renderLoader = () => {
     return (
@@ -152,7 +104,7 @@ class Login extends React.PureComponent {
       <GenericText
         size={60}
         text={'Welcome'}
-        color={colors.lightGray}
+        color={colors.black}
         style={{marginTop: 30}}
       />
     );
@@ -228,7 +180,7 @@ class Login extends React.PureComponent {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.blue,
+    backgroundColor: colors.white,
     alignItems: 'center',
     paddingTop: 50,
   },
@@ -236,6 +188,7 @@ const styles = StyleSheet.create({
     height: 50,
     width: TextInputWidth,
     backgroundColor: colors.lightGray,
+    color: colors.black,
     fontSize: 25,
     borderRadius: 5,
   },
@@ -252,9 +205,6 @@ Login.propTypes = {
 const mapStateToProps = state => {
   return {
     ...state.Login,
-    attemptingFriendsSearch: state.Friends.attemptingFriendsSearch,
-    attemptingReqReceivedSearch: state.Friends.attemptingReqReceivedSearch,
-    attemptingReqSentSearch: state.Friends.attemptingReqSentSearch,
   };
 };
 
@@ -266,9 +216,6 @@ function mapDispatchToProps(dispatch) {
     sendSignUpReq: (name, username, password) => {
       return dispatch(SignUpAsync(name, username, password));
     },
-    getFriends: token => dispatch(getFriends(token)),
-    getReqReceived: token => dispatch(getReqReceived(token)),
-    getReqSent: token => dispatch(getReqSent(token)),
   };
 }
 
