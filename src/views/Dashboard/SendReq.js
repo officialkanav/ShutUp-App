@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     paddingTop: 50,
   },
   textInput: {
-    height: 40,
+    height: 50,
     width: SCREEN_WIDTH - 60,
     backgroundColor: colors.gray,
     fontSize: 17,

@@ -87,9 +87,13 @@ class ChatList extends React.PureComponent {
   };
 
   renderLogoutButton = () => {
-    const {logout} = this.props;
+    const {logout, username} = this.props;
     return (
-      <TouchableOpacity onPress={logout}>
+      <TouchableOpacity
+        onPress={() => {
+          this.socket.emit('exit', username);
+          logout();
+        }}>
         <GenericText text={'Logout'} size={15} />
       </TouchableOpacity>
     );

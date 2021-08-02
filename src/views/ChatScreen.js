@@ -207,7 +207,7 @@ class ChatScreen extends React.PureComponent {
           value={this.state.newChat}
           placeholder={'Type a message'}
         />
-        <View style={{marginLeft: 5}}>
+        <View style={{marginLeft: 5, marginBottom: 25}}>
           <CircleLogo
             radius={40}
             noAnimation={true}
@@ -229,7 +229,7 @@ class ChatScreen extends React.PureComponent {
         renderItem={({item}) => {
           return this.renderChats(item);
         }}
-        style={{flex: 0.9, marginTop: 3}}
+        style={{flex: 0.9, marginTop: 3, marginBottom: 10}}
       />
     );
   };
@@ -270,11 +270,13 @@ const styles = StyleSheet.create({
     padding: 3,
   },
   textInput: {
-    height: 40,
-    width: SCREEN_WIDTH - 60,
+    height: 50,
+    width: SCREEN_WIDTH - 75,
     backgroundColor: colors.lightGray,
+    color: colors.black,
     fontSize: 17,
     borderRadius: 5,
+    marginBottom: 25,
   },
 });
 

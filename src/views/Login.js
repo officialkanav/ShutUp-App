@@ -185,11 +185,11 @@ const styles = StyleSheet.create({
     paddingTop: 50,
   },
   textInput: {
-    height: 50,
+    height: 60,
     width: TextInputWidth,
     backgroundColor: colors.lightGray,
     color: colors.black,
-    fontSize: 25,
+    fontSize: 20,
     borderRadius: 5,
   },
 });
