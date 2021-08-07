@@ -121,8 +121,8 @@ export function authenticateToken(token) {
           token: token,
         };
         dispatch(setFriends(json.user.friends));
-        dispatch(setReqReceived(json.user.pendingRequests));
-        dispatch(setReqSent(json.user.sentRequests));
+        dispatch(setReqReceived(json.user.reqReceived));
+        dispatch(setReqSent(json.user.reqSent));
 
         return dispatch(login(payLoad));
       })

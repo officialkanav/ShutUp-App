@@ -10,11 +10,9 @@ import Spinner from 'react-native-spinkit';
 
 class ViewReq extends React.PureComponent {
   constructor(props) {
-    const {reqReceived} = props;
     super(props);
     this.state = {
       showLoader: false,
-      pendingRequests: reqReceived ? reqReceived : [],
     };
   }
 
@@ -24,14 +22,17 @@ class ViewReq extends React.PureComponent {
       reqReceived,
       navigation: {navigate},
     } = this.props;
+    const {showLoader} = this.state;
+
     if (prevProps !== this.props) {
       if (prevProps.reqReceived !== null && reqReceived === null) {
         navigate('StartScreen');
       }
+
       if (attemptingReqReceivedSearch) {
         this.setState({showLoader: true});
-      } else {
-        this.setState({pendingRequests: reqReceived, showLoader: false});
+      } else if (showLoader) {
+        this.setState({showLoader: false});
       }
     }
   }
@@ -71,11 +72,12 @@ class ViewReq extends React.PureComponent {
   };
 
   renderFriendList = () => {
+    const {reqReceived} = this.props;
     return (
       <FlatList
         keyExtractor={(item, index) => index.toString()}
-        extraData={this.state.pendingRequests}
-        data={this.state.pendingRequests}
+        extraData={reqReceived}
+        data={reqReceived}
         renderItem={({item}) => {
           return this.renderUser(item);
         }}
@@ -85,11 +87,10 @@ class ViewReq extends React.PureComponent {
 
   render() {
     const {showLoader} = this.state;
+    const {reqReceived} = this.props;
     return (
       <View style={styles.container}>
-        {!showLoader &&
-        this.state.pendingRequests &&
-        this.state.pendingRequests.length === 0
+        {!showLoader && reqReceived && reqReceived.length === 0
           ? this.renderUserNotFound()
           : this.renderFriendList()}
         {showLoader && this.renderLoader()}
