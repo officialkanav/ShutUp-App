@@ -1,6 +1,5 @@
 import constants from '../utils/constants';
 import Toast from 'react-native-simple-toast';
-import {setChat} from '../actions/chatAction';
 import {setReqReceived, setFriends, setReqSent} from '../actions/friendsAction';
 
 export function login(payLoad) {
